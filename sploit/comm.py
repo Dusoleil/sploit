@@ -22,6 +22,20 @@ class Comm:
         log(data)
         return data
 
+    def readuntil(self,pred):
+        data = b''
+        while(not pred(data)):
+            data += self.back.stdin.read(1)
+        log(data)
+        return data
+
+    def readlineuntil(self,pred):
+        data = b''
+        while(not pred(data)):
+            data = self.back.stdin.readline()
+            log(data)
+        return data
+
     def write(self, data):
         self.back.stdout.write(data)
         self.back.stdout.flush()

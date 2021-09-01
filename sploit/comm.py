@@ -103,7 +103,14 @@ class Process:
         self.stdout = self.proc.stdin
 
     def __del__(self):
-        self.proc.wait()
+        if(self.proc.poll() != None):
+            return
+        try:
+            print("Waiting on Target Program to End...")
+            print("Press Ctrl+C to Forcefully Kill It...")
+            self.proc.wait()
+        except KeyboardInterrupt:
+            self.proc.kill()
 
 class Pipes:
     def __init__(self,tmp=None):

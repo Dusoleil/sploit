@@ -14,11 +14,15 @@ class Comm:
 
     def read(self, size):
         data = self.back.stdin.read(size)
+        if(data == b''):
+            raise BrokenPipeError('Tried to read on broken pipe')
         log(data)
         return data
 
     def readline(self):
         data = self.back.stdin.readline()
+        if(data == b''):
+            raise BrokenPipeError('Tried to read on broken pipe')
         log(data)
         return data
 

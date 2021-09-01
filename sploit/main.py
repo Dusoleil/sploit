@@ -1,5 +1,6 @@
 import argparse
 import tempfile
+import traceback
 
 from sploit.comm import *
 
@@ -30,7 +31,17 @@ def daemon(script):
     print("Running in Pipe Daemon Mode...")
     with tempfile.TemporaryDirectory() as tmpdir:
         while(True):
-            runscript(script,Comm(Pipes(tmpdir)));
+            try:
+                p = Pipes(tmpdir)
+            except KeyboardInterrupt:
+                break
+            try:
+                runscript(script,Comm(p));
+            except KeyboardInterrupt:
+                pass
+            except:
+                traceback.print_exc()
+            del p
 
 def pipe(script):
     print("Running in Pipe Mode...");

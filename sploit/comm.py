@@ -132,8 +132,11 @@ class Pipes:
         print("Connected!")
 
     def __del__(self):
-        self.stdout.close()
-        self.stdin.close()
-        os.unlink(self.pathin)
-        os.unlink(self.pathout)
+        try:
+            if getattr(self,'stdout',None) : self.stdout.close()
+            if getattr(self,'stdin',None) : self.stdin.close()
+        except BrokenPipeError:
+            pass
+        if getattr(self,'pathin',None) and os.path.exists(self.pathin) : os.unlink(self.pathin)
+        if getattr(self,'pathout',None) and os.path.exists(self.pathout) : os.unlink(self.pathout)
 

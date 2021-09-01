@@ -26,9 +26,8 @@ def main():
 def daemon(script):
     print("Running in Pipe Daemon Mode...")
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmp = os.path.split(tmpdir)[1]
         while(True):
-            runscript(script,Comm(Pipes(tmp)));
+            runscript(script,Comm(Pipes(tmpdir)));
 
 def pipe(script):
     print("Running in Pipe Mode...");

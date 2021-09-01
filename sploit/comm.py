@@ -111,7 +111,9 @@ class Pipes:
             self.dir = tempfile.TemporaryDirectory()
             dirname = self.dir.name
         else:
-            dirname =  os.path.join("/tmp",tmp)
+            if(not os.path.exists(tmp)):
+                os.mkdir(tmp)
+            dirname = tmp
         self.pathin = os.path.join(dirname,"in")
         self.pathout = os.path.join(dirname,"out")
         os.mkfifo(self.pathin)

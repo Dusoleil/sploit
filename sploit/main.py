@@ -18,7 +18,7 @@ def main():
         if(len(args.target)>0):
             if(args.daemon):
                 print("Target Given. Ignoring Daemon Flag...")
-            target(args.script,args.target)
+            target(args.script, args.target)
         else:
             if(args.daemon):
                 daemon(args.script)
@@ -36,7 +36,7 @@ def daemon(script):
             except KeyboardInterrupt:
                 break
             try:
-                runscript(script,Comm(p));
+                runscript(script, Comm(p));
             except KeyboardInterrupt:
                 pass
             except:
@@ -45,13 +45,13 @@ def daemon(script):
 
 def pipe(script):
     print("Running in Pipe Mode...");
-    runscript(script,Comm(Pipes()));
+    runscript(script, Comm(Pipes()));
 
-def target(script,target):
+def target(script, target):
     print("Running in Target Mode...")
-    runscript(script,Comm(Process(target)));
+    runscript(script, Comm(Process(target)));
 
-def runscript(script,comm):
+def runscript(script, comm):
     print("Running Script...")
     exec(open(script).read())
     print("Script Finished!")

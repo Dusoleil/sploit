@@ -22,14 +22,14 @@ class Comm:
         log(data)
         return data
 
-    def readuntil(self,pred):
+    def readuntil(self, pred):
         data = b''
         while(not pred(data)):
             data += self.back.stdin.read(1)
         log(data)
         return data
 
-    def readlineuntil(self,pred):
+    def readlineuntil(self, pred):
         data = b''
         while(not pred(data)):
             data = self.back.stdin.readline()
@@ -63,11 +63,11 @@ class Comm:
                         readall()
                     else:
                         syncstop.set()
-        os.set_blocking(self.back.stdin.fileno(),False)
-        readthread = threading.Thread(target=readloop,daemon=True)
+        os.set_blocking(self.back.stdin.fileno(), False)
+        readthread = threading.Thread(target=readloop, daemon=True)
         readthread.start()
         stdin = sys.stdin.buffer
-        signal.signal(signal.SIGALRM,lambda: 0)
+        signal.signal(signal.SIGALRM, lambda: 0)
         while not syncstop.isSet():
             try:
                 signal.alarm(1)
@@ -83,7 +83,7 @@ class Comm:
         signal.alarm(0)
         syncstop.set()
         readthread.join()
-        os.set_blocking(self.back.stdin.fileno(),True)
+        os.set_blocking(self.back.stdin.fileno(), True)
         print("<--Interact Mode Done-->")
 
 class Process:
@@ -109,7 +109,7 @@ class Process:
             self.proc.kill()
 
 class Pipes:
-    def __init__(self,tmp=None):
+    def __init__(self, tmp=None):
         if(tmp == None):
             self.dir = tempfile.TemporaryDirectory()
             dirname = self.dir.name
@@ -117,13 +117,13 @@ class Pipes:
             if(not os.path.exists(tmp)):
                 os.mkdir(tmp)
             dirname = tmp
-        self.pathin = os.path.join(dirname,"in")
-        self.pathout = os.path.join(dirname,"out")
+        self.pathin = os.path.join(dirname, "in")
+        self.pathout = os.path.join(dirname, "out")
         os.mkfifo(self.pathin)
         os.mkfifo(self.pathout)
         print("Waiting on Target to Connect...")
         print("<"+self.pathin+" >"+self.pathout)
-        self.stdout = open(self.pathin,"wb")
+        self.stdout = open(self.pathin, "wb")
         self.stdin = open(self.pathout, "rb")
         print("Connected!")
 

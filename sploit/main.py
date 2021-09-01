@@ -40,4 +40,5 @@ def target(script,target):
 def runscript(script,comm):
     print("Running Script...")
     exec(open(script).read())
+    print("Script Finished!")
 

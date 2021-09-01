@@ -48,7 +48,7 @@ class Comm:
         self.write(data + b'\n')
 
     def interact(self):
-        print("Interact Mode")
+        print("<--Interact Mode-->")
         syncstop = threading.Event()
         def readloop():
             poll = select.poll()
@@ -88,7 +88,7 @@ class Comm:
         syncstop.set()
         readthread.join()
         os.set_blocking(self.back.stdin.fileno(),True)
-        print("Interact Mode Done")
+        print("<--Interact Mode Done-->")
 
 class Process:
     def __init__(self, args):

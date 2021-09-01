@@ -1,10 +1,8 @@
 import subprocess
-import threading
 import tempfile
 import os
 import sys
 import select
-import signal
 
 from sploit.log import log
 from sploit.until import bind
@@ -57,45 +55,37 @@ class Comm:
 
     def interact(self):
         print("<--Interact Mode-->")
-        syncstop = threading.Event()
-        def readloop():
-            poll = select.poll()
-            poll.register(self.back.stdin)
-            def readall():
-                while(True):
-                    data = self.back.stdin.readline()
-                    if(data == b''):
-                        break
-                    log(data)
-            while not syncstop.isSet():
-                readall()
-                dat = poll.poll(100)
-                if(len(dat)>0):
-                    if(dat[0][1] & select.POLLIN):
-                        readall()
-                    else:
-                        syncstop.set()
-        os.set_blocking(self.back.stdin.fileno(), False)
-        readthread = threading.Thread(target=readloop, daemon=True)
-        readthread.start()
         stdin = sys.stdin.buffer
-        signal.signal(signal.SIGALRM, lambda: 0)
-        while not syncstop.isSet():
-            try:
-                signal.alarm(1)
-                data = stdin.readline()
-                if(data and not syncstop.isSet()):
-                    self.write(data)
-                else:
+        os.set_blocking(self.back.stdin.fileno(), False)
+        os.set_blocking(stdin.fileno(), False)
+        poll = select.poll()
+        poll.register(self.back.stdin, select.POLLIN)
+        poll.register(stdin, select.POLLIN)
+        brk = False
+        def readall(read, write):
+            while(True):
+                data = read()
+                if(data == b''):
                     break
-            except TypeError:
-                pass
+                write(data)
+        readtable = {
+                stdin.fileno() : lambda : readall(stdin.readline, self.write),
+                self.back.stdin.fileno() : lambda : readall(self.back.stdin.readline, log)
+        }
+        readtable[self.back.stdin.fileno()]()
+        while(not brk):
+            try:
+                ioevents = poll.poll(100)
+                for ev in ioevents:
+                    if(ev[1] & select.POLLIN):
+                        readtable[ev[0]]()
+                    else:
+                        brk = True
+                        break
             except KeyboardInterrupt:
                 break
-        signal.alarm(0)
-        syncstop.set()
-        readthread.join()
         os.set_blocking(self.back.stdin.fileno(), True)
+        os.set_blocking(stdin.fileno(), True)
         print("<--Interact Mode Done-->")
 
 class Process:

@@ -28,17 +28,22 @@ class Comm:
 
     def readuntil(self, pred):
         data = b''
-        while(not pred(data)):
+        while(True):
             data += self.back.stdin.read(1)
+            if(pred(data)):
+                break
         log(data)
         return data
 
     def readlineuntil(self, pred):
-        data = b''
-        while(not pred(data)):
+        dataarr = []
+        while(True):
             data = self.back.stdin.readline()
             log(data)
-        return data
+            dataarr.append(data)
+            if(pred(dataarr)):
+                break
+        return dataarr
 
     def write(self, data):
         self.back.stdout.write(data)

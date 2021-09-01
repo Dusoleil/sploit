@@ -7,6 +7,7 @@ import select
 import signal
 
 from sploit.log import log
+from sploit.until import bind
 
 class Comm:
     def __init__(self, backend):
@@ -26,8 +27,9 @@ class Comm:
         log(data)
         return data
 
-    def readuntil(self, pred):
+    def readuntil(self, pred, /, *args, **kwargs):
         data = b''
+        pred = bind(pred, *args, **kwargs)
         while(True):
             data += self.back.stdin.read(1)
             if(pred(data)):
@@ -35,8 +37,9 @@ class Comm:
         log(data)
         return data
 
-    def readlineuntil(self, pred):
+    def readlineuntil(self, pred, /, *args, **kwargs):
         dataarr = []
+        pred = bind(pred, *args, **kwargs)
         while(True):
             data = self.back.stdin.readline()
             log(data)

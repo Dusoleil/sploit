@@ -13,7 +13,7 @@ class Comm:
         self.back = backend
 
     def read(self, size):
-        data = self.back.stdin.read(size)
+        data = os.read(self.back.stdin.fileno(), size)
         if(data == b''):
             raise BrokenPipeError('Tried to read on broken pipe')
         log(data)

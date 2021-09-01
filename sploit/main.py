@@ -13,15 +13,18 @@ def main():
                         help='target program to exploit')
     args = parser.parse_args()
 
-    if(len(args.target)>0):
-        if(args.daemon):
-            print("Target Given. Ignoring Daemon Flag...")
-        target(args.script,args.target)
-    else:
-        if(args.daemon):
-            daemon(args.script)
+    try:
+        if(len(args.target)>0):
+            if(args.daemon):
+                print("Target Given. Ignoring Daemon Flag...")
+            target(args.script,args.target)
         else:
-            pipe(args.script)
+            if(args.daemon):
+                daemon(args.script)
+            else:
+                pipe(args.script)
+    except KeyboardInterrupt:
+        pass
 
 def daemon(script):
     print("Running in Pipe Daemon Mode...")

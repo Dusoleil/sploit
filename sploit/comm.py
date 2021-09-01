@@ -11,18 +11,21 @@ class Comm:
     def __init__(self, backend):
         self.back = backend
 
+    logonread = True
+    flushonwrite = True
+
     def read(self, size):
         data = os.read(self.back.stdin.fileno(), size)
         if(data == b''):
             raise BrokenPipeError('Tried to read on broken pipe')
-        log(data)
+        if self.logonread : log(data)
         return data
 
     def readline(self):
         data = self.back.stdin.readline()
         if(data == b''):
             raise BrokenPipeError('Tried to read on broken pipe')
-        log(data)
+        if self.logonread : log(data)
         return data
 
     def readuntil(self, pred, /, *args, **kwargs):
@@ -32,7 +35,7 @@ class Comm:
             data += self.back.stdin.read(1)
             if(pred(data)):
                 break
-        log(data)
+        if self.logonread : log(data)
         return data
 
     def readlineuntil(self, pred, /, *args, **kwargs):
@@ -40,7 +43,7 @@ class Comm:
         pred = bind(pred, *args, **kwargs)
         while(True):
             data = self.back.stdin.readline()
-            log(data)
+            if self.logonread : log(data)
             dataarr.append(data)
             if(pred(dataarr)):
                 break
@@ -48,7 +51,7 @@ class Comm:
 
     def write(self, data):
         self.back.stdout.write(data)
-        self.back.stdout.flush()
+        if self.flushonwrite : self.back.stdout.flush()
 
     def writeline(self, data):
         self.write(data + b'\n')

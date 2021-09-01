@@ -12,10 +12,6 @@ class Comm:
     def __init__(self, backend):
         self.back = backend
 
-    def __del__(self):
-        for line in self.back.stdin:
-            log(line)
-
     def read(self, size):
         data = self.back.stdin.read(size)
         log(data)

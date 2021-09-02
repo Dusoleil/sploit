@@ -38,10 +38,13 @@ class Comm:
     def readuntil(self, pred, /, *args, **kwargs):
         data = b''
         pred = bind(pred, *args, **kwargs)
+        l = self.logonread
+        self.logonread = False
         while(True):
-            data += self.back.stdin.read(1)
+            data += self.read(1)
             if(pred(data)):
                 break
+        self.logonread = l
         if self.logonread : log(data)
         return data
 
@@ -49,9 +52,7 @@ class Comm:
         dataarr = []
         pred = bind(pred, *args, **kwargs)
         while(True):
-            data = self.back.stdin.readline()
-            if self.logonread : log(data)
-            dataarr.append(data)
+            dataarr.append(self.readline())
             if(pred(dataarr)):
                 break
         return dataarr

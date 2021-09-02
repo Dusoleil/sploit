@@ -8,11 +8,11 @@ from sploit.log import log
 from sploit.until import bind
 
 class Comm:
-    def __init__(self, backend):
-        self.back = backend
-
     logonread = True
     flushonwrite = True
+
+    def __init__(self, backend):
+        self.back = backend
 
     def read(self, size):
         data = os.read(self.back.stdin.fileno(), size)

@@ -112,6 +112,7 @@ class Process:
         self.stdout = self.proc.stdin
 
     def __del__(self):
+        if getattr(self, 'proc', None) == None : return
         if(self.proc.poll() != None):
             return
         try:

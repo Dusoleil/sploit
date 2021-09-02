@@ -28,6 +28,13 @@ class Comm:
         if self.logonread : log(data)
         return data
 
+    def readall(self):
+        data = b''
+        for line in self.back.stdin:
+            log(line)
+            data += line
+        return data
+
     def readuntil(self, pred, /, *args, **kwargs):
         data = b''
         pred = bind(pred, *args, **kwargs)

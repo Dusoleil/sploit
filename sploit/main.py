@@ -55,6 +55,5 @@ def runscript(script, comm):
     print("Running Script...")
     exec(open(script).read())
     print("Script Finished!")
-    for line in comm.back.stdin:
-        log(line)
+    comm.readall()
 

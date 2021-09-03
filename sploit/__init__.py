@@ -1,1 +1,1 @@
-__all__ = ["log","comm","until","arch"]
+__all__ = ["log","comm","until","arch","mem"]

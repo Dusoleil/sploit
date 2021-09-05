@@ -1,2 +1,2 @@
-__all__ = ["log","comm","until","arch","mem"]
-from sploit import log, comm, until, arch, mem
+__all__ = ["log","comm","until","arch","mem","payload"]
+from sploit import log, comm, until, arch, mem, payload

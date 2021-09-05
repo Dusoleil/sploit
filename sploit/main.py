@@ -54,6 +54,6 @@ def target(script, target):
 def runscript(script, comm):
     print("Running Script...")
     code = compile(open(script).read(), script, 'exec')
-    exec(code, {'comm': comm})
+    exec(code, {'io': comm})
     print("Script Finished!")
     comm.readall()

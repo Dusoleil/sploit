@@ -14,18 +14,15 @@ def main():
                         help='target program to exploit')
     args = parser.parse_args()
 
-    try:
-        if(len(args.target)>0):
-            if(args.daemon):
-                print("Target Given. Ignoring Daemon Flag...")
-            target(args.script, args.target)
+    if(len(args.target)>0):
+        if(args.daemon):
+            print("Target Given. Ignoring Daemon Flag...")
+        target(args.script, args.target)
+    else:
+        if(args.daemon):
+            daemon(args.script)
         else:
-            if(args.daemon):
-                daemon(args.script)
-            else:
-                pipe(args.script)
-    except KeyboardInterrupt:
-        pass
+            pipe(args.script)
 
 def daemon(script):
     print("Running in Pipe Daemon Mode...")
@@ -35,12 +32,7 @@ def daemon(script):
                 p = Pipes(tmpdir)
             except KeyboardInterrupt:
                 break
-            try:
-                runscript(script, Comm(p));
-            except KeyboardInterrupt:
-                pass
-            except:
-                traceback.print_exc()
+            runscript(script, Comm(p));
             del p
 
 def pipe(script):
@@ -52,8 +44,15 @@ def target(script, target):
     runscript(script, Comm(Process(target)));
 
 def runscript(script, comm):
-    print("Running Script...")
-    code = compile(open(script).read(), script, 'exec')
-    exec(code, {'io': comm})
-    print("Script Finished!")
-    comm.readall()
+    try:
+        print("Running Script...")
+        code = compile(open(script).read(), script, 'exec')
+        exec(code, {'io': comm})
+        print("Script Finished!")
+        comm.readall()
+        return
+    except KeyboardInterrupt:
+        pass
+    except:
+        traceback.print_exc()
+    print("Script Ended Early!")

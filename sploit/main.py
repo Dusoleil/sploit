@@ -1,6 +1,7 @@
 import argparse
 import tempfile
 import traceback
+import gc
 
 from sploit.comm import *
 
@@ -55,4 +56,6 @@ def runscript(script, comm):
         pass
     except:
         traceback.print_exc()
+    finally:
+        gc.collect()
     print("Script Ended Early!")

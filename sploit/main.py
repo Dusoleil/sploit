@@ -1,48 +1,35 @@
-import argparse
+from argparse import ArgumentParser, REMAINDER
+import gc
 import tempfile
 import traceback
-import gc
 
 from sploit.comm import *
 
 def main():
-    parser = argparse.ArgumentParser(description='Execute Sploit Script Against Target')
-    parser.add_argument('-d', '--daemon', action='store_true',
-                        help='run in "daemon" mode with pipes instead of a designated target')
-    parser.add_argument('script',
-                        help='exploit script to run')
-    parser.add_argument('target', nargs=argparse.REMAINDER,
-                        help='target program to exploit')
+    parser = ArgumentParser(description='Execute Sploit script against target')
+    parser.add_argument('script', help='Exploit script to run')
+    parser.add_argument('target', nargs=REMAINDER, help='Target program to exploit')
     args = parser.parse_args()
 
     if(len(args.target)>0):
-        if(args.daemon):
-            print("Target Given. Ignoring Daemon Flag...")
         target(args.script, args.target)
     else:
-        if(args.daemon):
-            daemon(args.script)
-        else:
-            pipe(args.script)
+        pipe(args.script)
 
-def daemon(script):
-    print("Running in Pipe Daemon Mode...")
+def pipe(script):
+    print("Running in Pipe Mode...")
     with tempfile.TemporaryDirectory() as tmpdir:
         while(True):
             try:
                 p = Pipes(tmpdir)
             except KeyboardInterrupt:
                 break
-            runscript(script, Comm(p));
+            runscript(script, Comm(p))
             del p
-
-def pipe(script):
-    print("Running in Pipe Mode...");
-    runscript(script, Comm(Pipes()));
 
 def target(script, target):
     print("Running in Target Mode...")
-    runscript(script, Comm(Process(target)));
+    runscript(script, Comm(Process(target)))
 
 def runscript(script, comm):
     try:

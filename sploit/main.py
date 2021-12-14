@@ -4,6 +4,7 @@ import tempfile
 import traceback
 
 from sploit.comm import *
+from sploit.log import *
 
 def main():
     parser = ArgumentParser(description='Execute Sploit script against target')
@@ -17,7 +18,7 @@ def main():
         pipe(args.script)
 
 def pipe(script):
-    print("Running in Pipe Mode...")
+    ilog("Running in Pipe Mode...")
     with tempfile.TemporaryDirectory() as tmpdir:
         while(True):
             try:
@@ -28,21 +29,21 @@ def pipe(script):
             del p
 
 def target(script, target):
-    print("Running in Target Mode...")
+    ilog("Running in Target Mode...")
     runscript(script, Comm(Process(target)))
 
 def runscript(script, comm):
     try:
-        print("Running Script...")
+        ilog("Running Script...")
         code = compile(open(script).read(), script, 'exec')
-        exec(code, {'io': comm})
-        print("Script Finished!")
+        exec(code, {'io': comm, 'print': elog})
+        ilog("Script Finished!")
         comm.readall()
         return
     except KeyboardInterrupt:
         pass
     except:
-        traceback.print_exc()
+        ilog(traceback.format_exc(), end='', color=ERROR)
     finally:
         gc.collect()
-    print("Script Ended Early!")
+    ilog("Script Ended Early!", color=WARNING)

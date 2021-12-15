@@ -31,7 +31,7 @@ class Comm:
     def readall(self):
         data = b''
         for line in self.back.stdin:
-            ilog(line, file=sys.stdout, color=NORMAL)
+            if self.logonread : ilog(line, file=sys.stdout, color=NORMAL)
             data += line
         return data
 

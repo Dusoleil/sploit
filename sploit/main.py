@@ -6,6 +6,16 @@ import traceback
 from sploit.comm import *
 from sploit.log import *
 
+def print_banner(color, line1='', line2='', line3=''):
+    ilog()
+    ilog(' ░▒█▀▀▀█░▒█▀▀█░▒█░░░░▒█▀▀▀█░▀█▀░▀▀█▀▀    ', end='', color=ALT)
+    ilog(line1, color=ALT)
+    ilog(' ░░▀▀▀▄▄░▒█▄▄█░▒█░░░░▒█░░▒█░▒█░░░▒█░░    ', end='', color=color)
+    ilog(line2, color=ALT)
+    ilog(' ░▒█▄▄▄█░▒█░░░░▒█▄▄█░▒█▄▄▄█░▄█▄░░▒█░░    ', end='', color=ALT)
+    ilog(line3, color=ALT)
+    ilog()
+
 def main():
     parser = ArgumentParser(description='Execute Sploit script against target')
     parser.add_argument('script', help='Exploit script to run')
@@ -18,7 +28,7 @@ def main():
         pipe(args.script)
 
 def pipe(script):
-    ilog("Running in Pipe Mode...")
+    print_banner(ERROR, line3='Pipe Mode')
     with tempfile.TemporaryDirectory() as tmpdir:
         while(True):
             try:
@@ -29,7 +39,7 @@ def pipe(script):
             del p
 
 def target(script, target):
-    ilog("Running in Target Mode...")
+    print_banner(STATUS, line3='Subprocess Mode')
     runscript(script, Comm(Process(target)))
 
 def runscript(script, comm):

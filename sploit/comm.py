@@ -9,6 +9,7 @@ from sploit.until import bind
 
 class Comm:
     logonread = True
+    logonwrite = False
     flushonwrite = True
 
     def __init__(self, backend):
@@ -60,6 +61,7 @@ class Comm:
     def write(self, data):
         self.back.stdout.write(data)
         if self.flushonwrite : self.back.stdout.flush()
+        if self.logonwrite : ilog(data, file=sys.stdout, color=ALT)
 
     def writeline(self, data):
         self.write(data + b'\n')

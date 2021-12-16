@@ -31,9 +31,12 @@ class Comm:
 
     def readall(self):
         data = b''
-        for line in self.back.stdin:
-            if self.logonread : ilog(line, file=sys.stdout, color=NORMAL)
-            data += line
+        try:
+            for line in self.back.stdin:
+                if self.logonread : ilog(line, file=sys.stdout, color=NORMAL)
+                data += line
+        except KeyboardInterrupt:
+            pass
         return data
 
     def readuntil(self, pred, /, *args, **kwargs):

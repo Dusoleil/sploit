@@ -15,6 +15,9 @@ class Comm:
     def __init__(self, backend):
         self.back = backend
 
+    def shutdown(self):
+        self.back.stdout.close()
+
     def read(self, size):
         data = os.read(self.back.stdin.fileno(), size)
         if(data == b''):

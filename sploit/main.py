@@ -48,6 +48,7 @@ def runscript(script, comm):
         code = compile(open(script).read(), script, 'exec')
         exec(code, {'io': comm, 'print': elog})
         ilog("Script Finished!")
+        comm.shutdown()
         comm.readall()
         return
     except KeyboardInterrupt:

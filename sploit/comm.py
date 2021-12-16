@@ -41,11 +41,13 @@ class Comm:
         pred = bind(pred, *args, **kwargs)
         l = self.logonread
         self.logonread = False
-        while(True):
-            data += self.read(1)
-            if(pred(data)):
-                break
-        self.logonread = l
+        try:
+            while(True):
+                data += self.read(1)
+                if(pred(data)):
+                    break
+        finally:
+            self.logonread = l
         if self.logonread : ilog(data, file=sys.stdout, color=NORMAL)
         return data
 

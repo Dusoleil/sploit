@@ -124,6 +124,12 @@ class Comm:
         os.set_blocking(stdin.fileno(), True)
         ilog("<--Interact Mode Done-->")
 
+def popen(cmdline=''):
+    io = Comm((Process(cmdline.split()) if len(cmdline) > 0 else Pipes()))
+    io.readall_nonblock()
+    io.readonwrite = True
+    return io
+
 class Process:
     def __init__(self, args):
         ilog(f"Running: {' '.join(args)}")

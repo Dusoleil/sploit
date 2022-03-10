@@ -88,41 +88,35 @@ class Comm:
         self.write(data + b'\n')
 
     def interact(self):
-        ilog("<--Interact Mode-->")
         stdin = sys.stdin.buffer
-        os.set_blocking(self.back.stdin.fileno(), False)
-        os.set_blocking(stdin.fileno(), False)
-        poll = select.poll()
-        poll.register(self.back.stdin, select.POLLIN)
-        poll.register(stdin, select.POLLIN)
-        brk = False
-        def readall(read, write):
-            while(True):
-                data = read()
-                if(data == b''):
-                    break
-                write(data)
-        def writeinput(write):
-            ilog(write, file=sys.stdout, color=NORMAL)
+        event = select.POLLIN
+
+        def readall_stdin():
+            for line in stdin:
+                self.write(line)
+
         readtable = {
-                stdin.fileno() : lambda : readall(stdin.readline, self.write),
-                self.back.stdin.fileno() : lambda : readall(self.back.stdin.readline, writeinput)
+                self.back.stdin.fileno(): self.readall_nonblock,
+                stdin.fileno(): readall_stdin,
         }
-        readtable[self.back.stdin.fileno()]()
-        while(not brk):
-            try:
-                ioevents = poll.poll(100)
-                for ev in ioevents:
-                    if(ev[1] & select.POLLIN):
-                        readtable[ev[0]]()
-                    else:
-                        brk = True
-                        break
-            except KeyboardInterrupt:
-                break
-        os.set_blocking(self.back.stdin.fileno(), True)
-        os.set_blocking(stdin.fileno(), True)
-        ilog("<--Interact Mode Done-->")
+
+        try:
+            ilog("<--Interact Mode-->")
+            os.set_blocking(stdin.fileno(), False)
+
+            poll = select.poll()
+            poll.register(self.back.stdin, event)
+            poll.register(stdin, event)
+
+            while True:
+                for fd, e in poll.poll(self.timeout):
+                    if not e & event: return
+                    readtable[fd]()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            os.set_blocking(stdin.fileno(), True)
+            ilog("<--Interact Mode Done-->")
 
 def popen(cmdline=''):
     io = Comm((Process(cmdline.split()) if len(cmdline) > 0 else Pipes()))

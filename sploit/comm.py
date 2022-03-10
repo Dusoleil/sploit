@@ -11,6 +11,7 @@ class Comm:
     logonread = True
     logonwrite = False
     flushonwrite = True
+    readonwrite = False
     timeout = 0.25 # seconds
 
     def __init__(self, backend):
@@ -81,6 +82,7 @@ class Comm:
         self.back.stdout.write(data)
         if self.flushonwrite : self.back.stdout.flush()
         if self.logonwrite : ilog(data, file=sys.stdout, color=ALT)
+        if self.readonwrite : self.readall_nonblock()
 
     def writeline(self, data):
         self.write(data + b'\n')

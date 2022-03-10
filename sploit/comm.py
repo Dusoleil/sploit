@@ -11,6 +11,7 @@ class Comm:
     logonread = True
     logonwrite = False
     flushonwrite = True
+    timeout = 0.25 # seconds
 
     def __init__(self, backend):
         self.back = backend
@@ -41,6 +42,16 @@ class Comm:
         except KeyboardInterrupt:
             pass
         return data
+
+    def readall_nonblock(self):
+        try:
+            os.set_blocking(self.back.stdin.fileno(), False)
+            poll = select.poll()
+            poll.register(self.back.stdin, select.POLLIN)
+            poll.poll(self.timeout)
+            return self.readall()
+        finally:
+            os.set_blocking(self.back.stdin.fileno(), True)
 
     def readuntil(self, pred, /, *args, **kwargs):
         data = b''

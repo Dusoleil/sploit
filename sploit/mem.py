@@ -1,15 +1,19 @@
 class Symtbl:
-    def __init__(self, base=0, **kwargs):
-        self.__dict__ = {'base' : base, **kwargs}
+    def __init__(self, **kwargs):
+        self.__dict__ = {**kwargs}
+
+
+class Memmap:
+    def __init__(self, tbl, sym, addr):
+        object.__setattr__(self,'__tbl__', tbl)
+        base = addr if sym == 'base' else addr - getattr(self.__tbl__, sym)
+        object.__setattr__(self,'base', base)
 
     def __getattribute__(self, sym):
-        a = object.__getattribute__(self, sym)
-        if sym in object.__getattribute__(self,'__dict__') and sym != 'base':
-            return self.base + a
-        else:
-            return a
+        if sym == '__tbl__' or sym == 'base':
+            return object.__getattribute__(self, sym)
+        a = getattr(self.__tbl__, sym)
+        return self.base + a
 
-    def addr(self, sym, addr):
-        if sym == 'base' : self.base = addr
-        else: self.base = addr - object.__getattribute__(self, sym)
-
+    def __setattr__(self, k, v):
+        raise TypeError('Memmaps are Read-Only! Modify offsets with Symtbl instead!')

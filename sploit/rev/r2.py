@@ -54,7 +54,7 @@ def get_locals(binary,func):
     cmd_locals = f's {func};af;aafr;aaft;afvf'
     out = r2.run_cmd(binary,cmd_locals)
     out = [re.split(r':?\s+',var) for var in out]
-    out = {var[1]:int(var[0],0)-arch.wordsize for var in out}
+    out = {var[1]:-(int(var[0],0)-arch.wordsize) for var in out}
     return Symtbl(**out)
 
 def ret_gadget(binary):

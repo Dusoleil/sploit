@@ -33,3 +33,11 @@ class Memmap:
         for sym,addr in sorted(self.__tbl__.__dict__.items(),key=lambda x:x[1]):
             s += tbl_format.format(hex(addr+self.base),sym)
         return s
+
+def adjust(tbl, off):
+    tbl.__dict__ = {k:v+off for k,v in tbl.__dict__.items()}
+
+def rebase(tbl, sym):
+    off = -getattr(tbl, sym)
+    adjust(tbl, off)
+

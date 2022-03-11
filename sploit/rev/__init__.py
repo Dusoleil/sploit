@@ -1,4 +1,5 @@
 from . import (
-        ldd
+        ldd,
+        r2,
 )
 

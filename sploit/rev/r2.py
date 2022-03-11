@@ -62,7 +62,7 @@ def rop_gadget(binary,gad):
     return out
 
 def rop_gadget_exact(binary,gad):
-    gads = rop_gadget(gad,elf)
+    gads = rop_gadget(binary,gad)
     for g in gads:
         if g.asm[:-1].replace('; ',';') == gad:
             return g

@@ -16,6 +16,7 @@ class __ELF__:
         self.sym = r2.get_elf_symbols(self.path)
         libs = ldd.get_libraries(self.path)
         self.libs = {lib.name:ELF(lib.path) for lib in libs.values() if lib.path}
+        self.locals = self.__LOCALS__(self)
 
     def __str__(self):
         s = 'ELF: '
@@ -30,3 +31,22 @@ class __ELF__:
         for name,lib in self.libs.items():
             s += '\n' + str(name) + ' => ' + str(lib.path)
         return s
+
+    class __LOCALS__:
+        def __init__(self,elf):
+            self.elf = elf
+        def __getattribute__(self, sym):
+            if(sym=='elf'):return object.__getattribute__(self,sym)
+            return r2.get_locals(self.elf.path, getattr(self.elf.sym, sym))
+
+    def retaddr(self, caller, callee):
+        return [c.ret_addr for c in r2.get_call_returns(self.path, caller, callee)]
+
+    def retgad(self):
+        return r2.ret_gadget(self.path)
+
+    def gad(self, gad):
+        return [g.addr for g in r2.rop_gadget(self.path, gad)]
+
+    def egad(self, gad):
+        return r2.rop_gadget_exact(self.path, gad).addr

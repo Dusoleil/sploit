@@ -10,23 +10,12 @@ def run_cmd(binary,cmd):
 
 def get_elf_symbols(elf):
     out = {}
-
-    cmd_syms = 'is~ FUNC '
+    cmd_syms = 'is'
     out_syms = run_cmd(elf,cmd_syms)
-    out_syms = [re.split(r'\s+',sym) for sym in out_syms]
-    out_syms = {sym[6]:int(sym[2],0) for sym in out_syms if sym[6].find('.')<0}
-    out.update(out_syms)
-
-    cmd_syms = 'is~ LOOS '
-    out_syms = run_cmd(elf,cmd_syms)
-    out_syms = [re.split(r'\s+',sym) for sym in out_syms]
-    out_syms = {sym[6]:int(sym[2],0) for sym in out_syms if sym[6].find('.')<0}
-    out.update(out_syms)
-
-    cmd_syms = 'is~ TLS '
-    out_syms = run_cmd(elf,cmd_syms)
-    out_syms = [re.split(r'\s+',sym) for sym in out_syms]
-    out_syms = {sym[6]:int(sym[2],0) for sym in out_syms if sym[6].find('.')<0}
+    out_syms = [re.split(r'\s+',sym) for sym in out_syms][4:]
+    out_syms = [sym for sym in out_syms if sym[6].find('.')<0]
+    out_syms = [sym for sym in out_syms if sym[4]=='FUNC' or sym[4]=='LOOS' or sym[4]=='TLS']
+    out_syms = {sym[6]:int(sym[2],0) for sym in out_syms}
     out.update(out_syms)
 
     cmd_syms = 'ii~ FUNC '

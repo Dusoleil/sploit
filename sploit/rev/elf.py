@@ -1,6 +1,16 @@
 from sploit.rev import ldd, r2
 
-class ELF:
+__ELF_CACHE__ = {}
+
+def ELF(path):
+    if path in __ELF_CACHE__:
+        return __ELF_CACHE__[path]
+    else:
+        elf = __ELF__(path)
+        __ELF_CACHE__[path] = elf
+        return elf
+
+class __ELF__:
     def __init__(self, path):
         self.path = path
         self.sym = r2.get_elf_symbols(self.path)

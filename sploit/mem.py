@@ -17,12 +17,7 @@ class Symtbl:
         return hi-lo
 
     def __str__(self):
-        tbl_format = '\n{:<20} {:<20}'
-        s = 'len: ' + str(len(self.__dict__))
-        s += tbl_format.format('ADDRESS', 'SYMBOL')
-        for sym,addr in sorted(self.__dict__.items(),key=lambda x:x[1]):
-            s += tbl_format.format(hex(addr),sym)
-        return s
+        return __str__(self,self.__dict__)
 
 class Memmap:
     def __init__(self, tbl, sym, addr):
@@ -43,11 +38,18 @@ class Memmap:
         return len(self.__tbl__)
 
     def __str__(self):
-        tbl_format = '\n{:<20} {:<20}'
-        s = 'len: ' + str(len(self.__tbl__.__dict__)+1)
-        s += tbl_format.format('ADDRESS', 'SYMBOL')
-        s += tbl_format.format(hex(self.base),'base')
-        for sym,addr in sorted(self.__tbl__.__dict__.items(),key=lambda x:x[1]):
-            s += tbl_format.format(hex(addr+self.base),sym)
+        s = __str__(self,self.__tbl__.__dict__)
+        pos = -1
+        for i in range(3):
+            pos = s.find('\n',pos+1)
+        s = s[:pos] + __tbl_format__.format(hex(self.base),'base') + s[pos:]
         return s
 
+__tbl_format__ = '\n{:<20} {:<20}'
+def __str__(self,tbl):
+    s = 'symbols: ' + str(len(tbl))
+    s += '\nlength: ' + str(len(self))
+    s += __tbl_format__.format('ADDRESS', 'SYMBOL')
+    for sym,off in sorted(tbl.items(),key=lambda x:x[1]):
+        s += __tbl_format__.format(hex(getattr(self,sym)),sym)
+    return s

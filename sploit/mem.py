@@ -2,6 +2,12 @@ class Symtbl:
     def __init__(self, **kwargs):
         self.__dict__ = {**kwargs}
 
+    def adjust(self, off):
+        self.__dict__ = {k:v+off for k,v in self.__dict__.items()}
+
+    def rebase(self, sym):
+        self.adjust(-sym)
+
     def __str__(self):
         tbl_format = '\n{:<20} {:<20}'
         s = 'len: ' + str(len(self.__dict__))
@@ -33,11 +39,4 @@ class Memmap:
         for sym,addr in sorted(self.__tbl__.__dict__.items(),key=lambda x:x[1]):
             s += tbl_format.format(hex(addr+self.base),sym)
         return s
-
-def adjust(tbl, off):
-    tbl.__dict__ = {k:v+off for k,v in tbl.__dict__.items()}
-
-def rebase(tbl, sym):
-    off = -getattr(tbl, sym)
-    adjust(tbl, off)
 

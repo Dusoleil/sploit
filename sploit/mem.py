@@ -8,6 +8,14 @@ class Symtbl:
     def rebase(self, sym):
         self.adjust(-sym)
 
+    def __len__(self):
+        vals = self.__dict__.values()
+        if len(vals)<1:
+            return 0
+        hi = max(max(vals),0)
+        lo = min(min(vals),0)
+        return hi-lo
+
     def __str__(self):
         tbl_format = '\n{:<20} {:<20}'
         s = 'len: ' + str(len(self.__dict__))
@@ -30,6 +38,9 @@ class Memmap:
 
     def __setattr__(self, k, v):
         raise TypeError('Memmaps are Read-Only! Modify offsets with Symtbl instead!')
+
+    def __len__(self):
+        return len(self.__tbl__)
 
     def __str__(self):
         tbl_format = '\n{:<20} {:<20}'

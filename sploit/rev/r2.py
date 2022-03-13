@@ -42,7 +42,7 @@ def get_elf_symbols(elf):
     return Symtbl(**out)
 
 def get_locals(binary,func):
-    ilog(f'Retrieving local stack frame of {func} in {binary} with r2...')
+    ilog(f'Retrieving local stack frame of {hex(func)} in {binary} with r2...')
 
     addr = hex(func)
     cmd_locals = f's {func};af;aafr;aaft;afvf'
@@ -77,7 +77,7 @@ def rop_gadget_exact(binary,gad):
             return g
 
 def get_call_returns(binary,xref_from,xref_to):
-    ilog(f'Getting return addresses of calls from {xref_from} to {xref_to} in {binary} with r2...')
+    ilog(f'Getting return addresses of calls from {hex(xref_from)} to {hex(xref_to)} in {binary} with r2...')
 
     cmd_xrefs = f's {hex(xref_from)};af;axq'
     xrefs = run_cmd(binary,cmd_xrefs)

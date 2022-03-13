@@ -8,14 +8,6 @@ class Symtbl:
     def rebase(self, sym):
         self.adjust(-sym)
 
-    def __len__(self):
-        vals = self.__dict__.values()
-        if len(vals)<1:
-            return 0
-        hi = max(max(vals),0)
-        lo = min(min(vals),0)
-        return hi-lo
-
     def __str__(self):
         return __str__(self,self.__dict__)
 
@@ -34,13 +26,10 @@ class Memmap:
     def __setattr__(self, k, v):
         raise TypeError('Memmaps are Read-Only! Modify offsets with Symtbl instead!')
 
-    def __len__(self):
-        return len(self.__tbl__)
-
     def __str__(self):
         s = __str__(self,self.__tbl__.__dict__)
         pos = -1
-        for i in range(3):
+        for i in range(2):
             pos = s.find('\n',pos+1)
         s = s[:pos] + __tbl_format__.format(hex(self.base),'base') + s[pos:]
         return s
@@ -48,7 +37,6 @@ class Memmap:
 __tbl_format__ = '\n{:<20} {:<20}'
 def __str__(self,tbl):
     s = 'symbols: ' + str(len(tbl))
-    s += '\nlength: ' + str(len(self))
     s += __tbl_format__.format('ADDRESS', 'SYMBOL')
     for sym,off in sorted(tbl.items(),key=lambda x:x[1]):
         s += __tbl_format__.format(hex(getattr(self,sym)),sym)

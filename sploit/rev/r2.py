@@ -1,12 +1,12 @@
 from sploit.mem import Symtbl
 from sploit.arch import arch
+from sploit.util import run_cmd_cached
 
 import re
-from subprocess import run
 from collections import namedtuple as nt
 
 def run_cmd(binary,cmd):
-    return run(['r2','-q','-c',cmd,'-e','scr.color=false',binary],capture_output=True).stdout.decode('utf-8').split('\n')[:-1]
+    return run_cmd_cached(['r2','-q','-c',cmd,'-e','scr.color=false',binary])
 
 def get_elf_symbols(elf):
     out = {}

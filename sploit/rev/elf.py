@@ -5,7 +5,7 @@ class ELF:
         self.path = path
         self.sym = r2.get_elf_symbols(self.path)
         libs = ldd.get_libraries(self.path)
-        self.libs = {lib.name:ELF(lib.path) for lib in libs.values() if lib.path}
+        self.libs = self.__LIBS__(libs)
         self.locals = self.__LOCALS__(self)
 
     def __str__(self):
@@ -18,12 +18,24 @@ class ELF:
         s += '\n------------'
         s += '\nLibararies'
         s += '\n------------'
-        for name,lib in self.libs.items():
-            s += '\n' + str(name) + ' => ' + str(lib.path)
+        s += str(self.libs)
         return s
 
+    class __LIBS__(dict):
+        def __init__(self, libs):
+            super().__init__({lib.name:lib.path for lib in libs.values() if lib.path})
+        def __getitem__(self, lib):
+            get = super().__getitem__
+            if(type(get(lib))==str):self[lib] = ELF(get(lib))
+            return get(lib)
+        def __str__(self):
+            s = ''
+            for name,lib in self.items():
+                s += '\n' + str(name) + ' => ' + lib if(type(lib)==str) else str(lib.path)
+            return s
+
     class __LOCALS__:
-        def __init__(self,elf):
+        def __init__(self, elf):
             self.elf = elf
         def __getattribute__(self, sym):
             if(sym=='elf'):return object.__getattribute__(self,sym)

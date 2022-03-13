@@ -1,6 +1,7 @@
 from sploit.mem import Symtbl
 from sploit.arch import arch
 from sploit.util import run_cmd_cached
+from sploit.log import ilog
 
 import re
 from collections import namedtuple as nt
@@ -9,7 +10,9 @@ def run_cmd(binary,cmd):
     return run_cmd_cached(['r2','-q','-c',cmd,'-e','scr.color=false',binary])
 
 def get_elf_symbols(elf):
+    ilog(f'Retrieving symbols of {elf} with r2...')
     out = {}
+
     cmd_syms = 'is'
     out_syms = run_cmd(elf,cmd_syms)
     out_syms = [re.split(r'\s+',sym) for sym in out_syms][4:]
@@ -39,6 +42,8 @@ def get_elf_symbols(elf):
     return Symtbl(**out)
 
 def get_locals(binary,func):
+    ilog(f'Retrieving local stack frame of {func} in {binary} with r2...')
+
     addr = hex(func)
     cmd_locals = f's {func};af;aafr;aaft;afvf'
     out = run_cmd(binary,cmd_locals)
@@ -47,6 +52,8 @@ def get_locals(binary,func):
     return Symtbl(**out)
 
 def ret_gadget(binary):
+    ilog(f'Searching for a ret gadget in {binary} with r2...')
+
     cmd_ret = '/R/ ret~ret'
     out = run_cmd(binary,cmd_ret)
     out = out[0]
@@ -55,6 +62,8 @@ def ret_gadget(binary):
     return int(out,0)
 
 def rop_gadget(binary,gad):
+    ilog(f'Searching for "{gad}" gadgets in {binary} with r2...')
+
     cmd_gad = f'"/R/q {gad}"'
     out = run_cmd(binary,cmd_gad)
     Gad = nt("Gad", "addr asm")
@@ -68,6 +77,8 @@ def rop_gadget_exact(binary,gad):
             return g
 
 def get_call_returns(binary,xref_from,xref_to):
+    ilog(f'Getting return addresses of calls from {xref_from} to {xref_to} in {binary} with r2...')
+
     cmd_xrefs = f's {hex(xref_from)};af;axq'
     xrefs = run_cmd(binary,cmd_xrefs)
     xrefs = [re.split(r'\s+',x) for x in xrefs]

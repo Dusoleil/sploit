@@ -1,9 +1,11 @@
 from sploit.util import run_cmd_cached
+from sploit.log import ilog
 
 import re
 from collections import namedtuple as nt
 
 def get_libraries(elf):
+    ilog(f'Retrieving linked libraries of {elf} with ldd...')
     out = run_cmd_cached(['ldd',elf])
     out = [re.split(r'\s+',lib)[1:] for lib in out]
     Lib = nt("Lib", "name path addr")

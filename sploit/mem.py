@@ -13,18 +13,18 @@ class Symtbl:
 
 class Memmap:
     def __init__(self, tbl, sym, addr):
-        object.__setattr__(self,'__tbl__', tbl)
-        base = addr if sym == 'base' else addr - getattr(self.__tbl__, sym)
-        object.__setattr__(self,'base', base)
+        self.__tbl__ = tbl
+        self.base = addr - sym
 
     def __getattribute__(self, sym):
-        if sym == '__tbl__' or sym == 'base':
+        if(sym in ['__tbl__','base']):
             return object.__getattribute__(self, sym)
         a = getattr(self.__tbl__, sym)
         return self.base + a
 
-    def __setattr__(self, k, v):
-        raise TypeError('Memmaps are Read-Only! Modify offsets with Symtbl instead!')
+    def __setattr__(self, sym, addr):
+        if(sym in ['__tbl__','base']):
+            return object.__setattr__(self,sym,addr)
 
     def __str__(self):
         s = __str__(self,self.__tbl__.__dict__)

@@ -1,4 +1,5 @@
 from sploit.rev import ldd, r2
+from sploit.util import __attr_filter__
 
 class ELF:
     def __init__(self, path):
@@ -38,7 +39,8 @@ class ELF:
         def __init__(self, elf):
             self.elf = elf
         def __getattribute__(self, sym):
-            if(sym=='elf'):return object.__getattribute__(self,sym)
+            if(sym in (['elf'] + __attr_filter__)):
+                return object.__getattribute__(self,sym)
             return r2.get_locals(self.elf.path, getattr(self.elf.sym, sym))
 
     def retaddr(self, caller, callee):

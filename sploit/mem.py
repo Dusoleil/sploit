@@ -12,7 +12,7 @@ class Symtbl:
             self.off = off
             self.tbl = tbl
         def __getattribute__(self,sym):
-            if(sym in ['off','tbl','__class__']):
+            if(sym in (['off','tbl'] + __attr_filter__)):
                 return object.__getattribute__(self,sym)
             addr = getattr(self.tbl,sym)
             if(type(addr)==int):
@@ -30,7 +30,8 @@ class Symtbl:
 
     def __getattribute__(self, sym):
         addr = object.__getattribute__(self,sym)
-        if(sym == '__subs__'):return addr
+        if(sym in (['__subs__'] + __attr_filter__)):
+            return addr
         if(sym == 'base'):return 0
         if(sym in self.__subs__):
             return self.__InnerTable__(addr,self.__subs__[sym])
@@ -51,7 +52,7 @@ class Memmap:
         self.base = addr - sym
 
     def __getattribute__(self, sym):
-        if(sym in ['__tbl__','base']):
+        if(sym in (['__tbl__','base'] + __attr_filter__)):
             return object.__getattribute__(self, sym)
         addr = getattr(self.__tbl__, sym)
         if(type(addr)==Symtbl.__InnerTable__):
@@ -83,3 +84,5 @@ def __str__(self,tbl):
         else:
             s += __tbl_format__.format(hex(addr),sym)
     return s
+
+__attr_filter__ = ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__']

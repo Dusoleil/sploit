@@ -5,4 +5,6 @@ from sploit import (
         mem,
         payload,
         until,
+        util,
+        rev,
 )

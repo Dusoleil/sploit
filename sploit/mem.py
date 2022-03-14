@@ -1,3 +1,5 @@
+from sploit.util import __attr_filter__
+
 class Symtbl:
     __subs__ = {}
     def __init__(self, **kwargs):
@@ -12,7 +14,7 @@ class Symtbl:
             self.off = off
             self.tbl = tbl
         def __getattribute__(self,sym):
-            if(sym in ['off','tbl','__class__']):
+            if(sym in (['off','tbl'] + __attr_filter__)):
                 return object.__getattribute__(self,sym)
             addr = getattr(self.tbl,sym)
             if(type(addr)==int):
@@ -30,7 +32,8 @@ class Symtbl:
 
     def __getattribute__(self, sym):
         addr = object.__getattribute__(self,sym)
-        if(sym == '__subs__'):return addr
+        if(sym in (['__subs__'] + __attr_filter__)):
+            return addr
         if(sym == 'base'):return 0
         if(sym in self.__subs__):
             return self.__InnerTable__(addr,self.__subs__[sym])
@@ -51,7 +54,7 @@ class Memmap:
         self.base = addr - sym
 
     def __getattribute__(self, sym):
-        if(sym in ['__tbl__','base']):
+        if(sym in (['__tbl__','base'] + __attr_filter__)):
             return object.__getattribute__(self, sym)
         addr = getattr(self.__tbl__, sym)
         if(type(addr)==Symtbl.__InnerTable__):

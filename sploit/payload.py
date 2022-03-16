@@ -1,64 +1,75 @@
 from sploit.arch import arch, itob
 from sploit.mem import Symtbl
 
-# Users can set this to the (absolute) address of a 'ret' ROP gadget.  Some
-# features may require it.
-RETGADGET : int = None
+class Payload(Symtbl):
+    MAGIC = b'\xef'
 
-class Placeholder(bytearray):
-    def __init__(self, text='_unnamed_'):
-        self += bytearray(itob(0))
-        self.text = text
-
-class Payload:
-    def __init__(self, size=0, base=0, **kwargs):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self = self._namesp
         self.payload = b''
-        self.size = size
-        self.alignstart = None
-        self.tab = Symtbl(base=base, **kwargs)
+        self.ctrs = {}
 
     def __len__(self):
-        return len(self.payload)
+        return len(self._namesp.payload)
 
-    def __getattr__(self, sym):
-        return getattr(self.tab, sym)
+    def __call__(self, badbytes=b''):
+        self = self._namesp
+        found = [ hex(x) for x in set(self.payload).intersection(badbytes) ]
+        if len(found) > 0:
+            raise Exception(f'Payload: bad bytes in content: {found}')
+        return self.payload
 
-    def data(self, x, sym='_'):
-        off = len(self)
-        self.payload += x
-        setattr(self.tab, sym, off)
-        return getattr(self.tab, sym)
+    def __name(self, kind):
+        self = self._namesp
+        try: ctr = self.ctrs[kind]
+        except: ctr = 0
+        self.ctrs[kind] = ctr + 1
+        return f'{kind}_{ctr}'
 
-    def value(self, x, sym='_', signed=False):
-        return self.data(itob(x, signed=signed), sym=sym)
+    def __append(self, value, sym):
+        setattr(self, sym, len(self))
+        self._namesp.payload += value
+        return self
 
-    def ret(self, x, sym='_'):
-        self.align()
-        return self.value(x, sym=sym)
+    def __prepend(self, value, sym):
+        self.adjust(len(value))
+        setattr(self, sym, 0)
+        self._namesp.payload = value + self._namesp.payload
+        return self
 
-    def stuff(self, x, size, sym='_', *, explain=''):
-        if size >= 0:
-            if (size := size / len(x)) == int(size):
-                if size == 0 or not isinstance(x, Placeholder):
-                    return self.data(x * int(size), sym=sym)
+    def bin(self, value, sym=None):
+        return self.__append(value, sym or self.__name('bin'))
 
-                raise Exception(explain+"Can not stuff payload: "
-                        f"Placeholder for {x.text} detected")
-            raise Exception(explain+"Can not stuff payload: "
-                    "Element does not divide the space evenly")
-        raise Exception(explain+"Can not stuff payload: "
-                "Available space is negative")
+    def str(self, value, sym=None):
+        return self.bin(value.encode()+b'\x00', sym or self.__name('str'))
 
-    def pad(self, x=None, sym='_'):
-        size = self.size - len(self)
-        return self.stuff((x or arch.nopcode), size, sym=sym,
-                explain='Error padding payload: ')
+    def int(self, value, sym=None, signed=False):
+        return self.bin(itob(value, signed=signed), sym or self.__name('int'))
 
-    def align(self, x=None, sym='_'):
-        if self.alignstart is None:
-            self.alignstart = len(self)
+    def ret(self, value, sym=None):
+        return self.int(value, sym or self.__name('ret'))
 
-        retgad = (itob(RETGADGET) if RETGADGET else Placeholder('ret gadget'))
-        size = (self.alignstart - len(self)) % arch.alignment
-        return self.stuff((x or retgad), size, sym=sym,
-                explain='Error aligning payload: ')
+    def sbp(self, value=None, sym=None):
+        if value is None:
+            return self.rep(self.MAGIC, arch.wordsize, sym or self.__name('sbp'))
+        return self.int(value, sym or self.__name('sbp'))
+
+    def rep(self, value, size, sym=None):
+        return self.bin(self.__rep_helper(value, size), sym or self.__name('rep'))
+
+    def pad(self, size, value=None, sym=None):
+        return self.bin(self.__pad_helper(size, value), sym or self.__name('pad'))
+
+    def pad_front(self, size, value=None, sym=None):
+        return self.__prepend(self.__pad_helper(size, value), sym or self.__name('pad'))
+
+    def __rep_helper(self, value, size, *, explain=''):
+        if size < 0:
+            raise Exception(f'Payload: {explain}rep: available space is negative')
+        if (size := size / len(value)) != int(size):
+            raise Exception(f'Payload: {explain}rep: element does not divide the space evenly')
+        return value * int(size)
+
+    def __pad_helper(self, size, value):
+        return self.__rep_helper(value or arch.nopcode, size - len(self), explain='pad: ')

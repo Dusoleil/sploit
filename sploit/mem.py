@@ -1,88 +1,51 @@
-from sploit.util import __attr_filter__
+import types
 
 class Symtbl:
-    __subs__ = {}
     def __init__(self, **kwargs):
-        self.__dict__ = {**kwargs}
+        object.__setattr__(self, '_namesp', types.SimpleNamespace(base=0,sym={},sub={}))
+        for k, v in {**kwargs}.items():
+            setattr(self, k, v)
 
-    def subtable(self, sym, off, table):
-        setattr(self, sym, off)
-        self.__subs__[sym] = table
+    def __getattr__(self, ident):
+        self = self._namesp
+        if ident == 'base': return self.base
+        off = self.base + self.sym[ident]
+        if ident in self.sub: return self.sub[ident].map(off)
+        return off
 
-    class __InnerTable__:
-        def __init__(self,off,tbl):
-            self.off = off
-            self.tbl = tbl
-        def __getattribute__(self,sym):
-            if(sym in (['off','tbl'] + __attr_filter__)):
-                return object.__getattribute__(self,sym)
-            addr = getattr(self.tbl,sym)
-            if(type(addr)==int):
-                return addr + self.off
-            if(type(addr)==self.__class__):
-                addr.off += self.off
-                return addr
-            return addr
-        def __setattr__(self,sym,off):
-            if(sym in ['off','tbl']):
-                return object.__setattr__(self,sym,off)
-            return setattr(self.tbl,sym,off-self.off)
-        def __str__(self):
-            return str(self.tbl)
+    def __setattr__(self, ident, value):
+        if ident in dir(self): raise Exception(f'Symtbl: assignment would shadow non-symbol "{ident}"')
+        if ident == 'base': raise Exception('Symtbl: may not redefine symbol "base"')
+        self = self._namesp
+        if type(value) is tuple: self.sub[ident], off = value
+        else: off = value
+        self.sym[ident] = off - self.base
 
-    def __getattribute__(self, sym):
-        addr = object.__getattribute__(self,sym)
-        if(sym in (['__subs__'] + __attr_filter__)):
-            return addr
-        if(sym == 'base'):return 0
-        if(sym in self.__subs__):
-            return self.__InnerTable__(addr,self.__subs__[sym])
-        return addr
+    def map(self, addr, off=0):
+        self = self._namesp
+        mm = Symtbl()
+        mm._namesp.sym, mm._namesp.sub = self.sym, self.sub
+        mm._namesp.base = addr - off
+        return mm
 
     def adjust(self, off):
-        self.__dict__ = {k:v+off for k,v in self.__dict__.items()}
+        self = self._namesp
+        for k, v in self.sym.items():
+            self.sym[k] = v + off
 
-    def rebase(self, sym):
-        self.adjust(-sym)
+    def rebase(self, off):
+        self.adjust(-off)
 
-    def __str__(self):
-        return __str__(self,self.__dict__)
+    def __str__(_self):
+        FMT = '\n{:<20} {:<20}'
+        self = _self._namesp
 
-class Memmap:
-    def __init__(self, tbl, sym, addr):
-        self.__tbl__ = tbl
-        self.base = addr - sym
-
-    def __getattribute__(self, sym):
-        if(sym in (['__tbl__','base'] + __attr_filter__)):
-            return object.__getattribute__(self, sym)
-        addr = getattr(self.__tbl__, sym)
-        if(type(addr)==Symtbl.__InnerTable__):
-            addr.off += self.base
-            return addr
-        return self.base + addr
-
-    def __setattr__(self, sym, addr):
-        if(sym in ['__tbl__','base']):
-            return object.__setattr__(self,sym,addr)
-        return setattr(self.__tbl__,sym,addr-self.base)
-
-    def __str__(self):
-        s = __str__(self,self.__tbl__.__dict__)
-        pos = -1
-        for i in range(2):
-            pos = s.find('\n',pos+1)
-        s = s[:pos] + __tbl_format__.format(hex(self.base),'base') + s[pos:]
+        s  = f'{len(self.sym)} symbols @ {hex(_self.base)}'
+        s += FMT.format('ADDRESS', 'SYMBOL')
+        for sym, _ in sorted(self.sym.items(), key=lambda x:x[1]):
+            addr = getattr(_self, sym)
+            if type(addr) is Symtbl:
+                s += FMT.format(hex(addr.base), f'[{sym}]')
+            else:
+                s += FMT.format(hex(addr), sym)
         return s
-
-__tbl_format__ = '\n{:<20} {:<20}'
-def __str__(self,tbl):
-    s = 'symbols: ' + str(len(tbl))
-    s += __tbl_format__.format('ADDRESS', 'SYMBOL')
-    for sym,off in sorted(tbl.items(),key=lambda x:x[1]):
-        addr = getattr(self,sym)
-        if(type(addr)==Symtbl.__InnerTable__):
-            s += __tbl_format__.format(hex(addr.off),f'[{sym}]')
-        else:
-            s += __tbl_format__.format(hex(addr),sym)
-    return s

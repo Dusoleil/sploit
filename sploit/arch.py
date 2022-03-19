@@ -12,4 +12,10 @@ x86_64   = Arch(          8,   'little',        16, b'\x90')
 ARM      = Arch(          4,   'little',         8, b'\xe1\xa0\x00\x00')
 THUMB    = Arch(          4,   'little',         8, b'\x46\xc0')
 
-arch = x86_64
+class __ActiveArch__:
+    __arch = x86_64
+    def __getattr__(self,k):
+        return getattr(self.__arch,k)
+    def set(self,a):
+        self.__arch = a
+arch = __ActiveArch__()

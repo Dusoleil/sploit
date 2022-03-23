@@ -12,7 +12,7 @@ class Comm:
     logonwrite = False
     flushonwrite = True
     readonwrite = False
-    timeout = 0.25 # seconds
+    timeout = 250 # milliseconds
 
     def __init__(self, backend):
         self.back = backend

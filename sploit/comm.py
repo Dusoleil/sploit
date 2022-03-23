@@ -46,11 +46,15 @@ class Comm:
 
     def readall_nonblock(self):
         try:
+            data = b''
             os.set_blocking(self.back.stdin.fileno(), False)
             poll = select.poll()
             poll.register(self.back.stdin, select.POLLIN)
-            poll.poll(self.timeout)
-            return self.readall()
+            while True:
+                poll.poll(self.timeout)
+                d = self.readall()
+                if len(d) == 0: return data
+                data += d
         finally:
             os.set_blocking(self.back.stdin.fileno(), True)
 

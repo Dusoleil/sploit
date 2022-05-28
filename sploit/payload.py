@@ -38,28 +38,30 @@ class Payload(Symtbl):
         self._namesp.payload = value + self._namesp.payload
         return self
 
-    def bin(self, value, sym=None):
-        return self.__append(value, sym or self.__name('bin'))
+    def bin(self, *values, sym=None):
+        return self.__append(b''.join(values), sym or self.__name('bin'))
 
-    def str(self, value, sym=None):
-        return self.bin(value.encode()+b'\x00', sym or self.__name('str'))
+    def str(self, *values, sym=None):
+        values = [ v.encode() + b'\x00' for v in values ]
+        return self.bin(*values, sym=(sym or self.__name('str')))
 
-    def int(self, value, sym=None, signed=False):
-        return self.bin(itob(value, signed=signed), sym or self.__name('int'))
+    def int(self, *values, sym=None, signed=False):
+        values = [ itob(v, signed=signed) for v in values ]
+        return self.bin(*values, sym=(sym or self.__name('int')))
 
-    def ret(self, value, sym=None):
-        return self.int(value, sym or self.__name('ret'))
+    def ret(self, *values, sym=None):
+        return self.int(*values, sym=(sym or self.__name('ret')))
 
-    def sbp(self, value=None, sym=None):
-        if value is None:
+    def sbp(self, *values, sym=None):
+        if len(values) == 0:
             return self.rep(self.MAGIC, arch.wordsize, sym or self.__name('sbp'))
-        return self.int(value, sym or self.__name('sbp'))
+        return self.int(*values, sym=(sym or self.__name('sbp')))
 
     def rep(self, value, size, sym=None):
-        return self.bin(self.__rep_helper(value, size), sym or self.__name('rep'))
+        return self.bin(self.__rep_helper(value, size), sym=(sym or self.__name('rep')))
 
     def pad(self, size, value=None, sym=None):
-        return self.bin(self.__pad_helper(size, value), sym or self.__name('pad'))
+        return self.bin(self.__pad_helper(size, value), sym=(sym or self.__name('pad')))
 
     def pad_front(self, size, value=None, sym=None):
         return self.__prepend(self.__pad_helper(size, value), sym or self.__name('pad'))

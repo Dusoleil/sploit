@@ -36,7 +36,7 @@ class Symtbl:
             self.sym[k] = v + off
 
     def rebase(self, off):
-        self.adjust(-off)
+        self.adjust(self.base - off)
 
     def __str__(_self):
         FMT = '\n{:<20} {:<20}'

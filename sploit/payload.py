@@ -28,13 +28,13 @@ class Payload(Symtbl):
         return f'{kind}_{ctr}'
 
     def __append(self, value, sym):
-        setattr(self, sym, len(self))
+        setattr(self, sym, self.base + len(self))
         self._namesp.payload += value
         return self
 
     def __prepend(self, value, sym):
         self.adjust(len(value))
-        setattr(self, sym, 0)
+        setattr(self, sym, self.base)
         self._namesp.payload = value + self._namesp.payload
         return self
 

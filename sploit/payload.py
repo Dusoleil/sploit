@@ -1,41 +1,38 @@
 from sploit.arch import arch, itob
 from sploit.mem import Symtbl
 
-class Payload(Symtbl):
+class Payload:
     MAGIC = b'\xef'
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self = self._namesp
         self.payload = b''
+        self.sym = Symtbl(**kwargs)
         self.ctrs = {}
 
     def __len__(self):
-        return len(self._namesp.payload)
+        return len(self.payload)
 
     def __call__(self, badbytes=b''):
-        self = self._namesp
         found = [ hex(x) for x in set(self.payload).intersection(badbytes) ]
         if len(found) > 0:
             raise Exception(f'Payload: bad bytes in content: {found}')
         return self.payload
 
     def __name(self, kind):
-        self = self._namesp
         try: ctr = self.ctrs[kind]
         except: ctr = 0
         self.ctrs[kind] = ctr + 1
         return f'{kind}_{ctr}'
 
     def __append(self, value, sym):
-        setattr(self, sym, len(self))
-        self._namesp.payload += value
+        setattr(self.sym.map(0), sym, len(self))
+        self.payload += value
         return self
 
     def __prepend(self, value, sym):
-        self.adjust(len(value))
-        setattr(self, sym, 0)
-        self._namesp.payload = value + self._namesp.payload
+        self.sym.adjust(len(value))
+        setattr(self.sym.map(0), sym, 0)
+        self.payload = value + self.payload
         return self
 
     def bin(self, *values, sym=None):

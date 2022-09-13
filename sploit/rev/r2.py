@@ -13,6 +13,11 @@ def get_elf_symbols(elf):
     ilog(f'Retrieving symbols of {elf} with r2...')
     out = {}
 
+    cmd_base = 'iI~baddr'
+    base = run_cmd(elf,cmd_base)
+    base = re.split(r'\s+',base[0])[1]
+    base = int(base,0)
+
     cmd_syms = 'is'
     out_syms = run_cmd(elf,cmd_syms)
     out_syms = [re.split(r'\s+',sym) for sym in out_syms][4:]
@@ -39,7 +44,7 @@ def get_elf_symbols(elf):
     out_strs = {sym[2][sym[2].rfind('.')+1:]:int(sym[0],0) for sym in out_strs}
     out.update(out_strs)
 
-    return Symtbl(**out)
+    return Symtbl(base=base, **out)
 
 def get_locals(binary,func):
     ilog(f'Retrieving local stack frame of {hex(func)} in {binary} with r2...')

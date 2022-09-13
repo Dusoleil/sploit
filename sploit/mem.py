@@ -1,8 +1,8 @@
 import types
 
 class Symtbl:
-    def __init__(self, **kwargs):
-        object.__setattr__(self, '_namesp', types.SimpleNamespace(base=0,sym={},sub={}))
+    def __init__(self, *, base=0, **kwargs):
+        object.__setattr__(self, '_namesp', types.SimpleNamespace(base=base,sym={},sub={}))
         for k, v in {**kwargs}.items():
             setattr(self, k, v)
 
@@ -15,11 +15,13 @@ class Symtbl:
 
     def __setattr__(self, ident, value):
         if ident in dir(self): raise Exception(f'Symtbl: assignment would shadow non-symbol "{ident}"')
-        if ident == 'base': raise Exception('Symtbl: may not redefine symbol "base"')
         self = self._namesp
-        if type(value) is tuple: self.sub[ident], off = value
-        else: off = value
-        self.sym[ident] = off - self.base
+        if ident == 'base':
+            self.base = value
+        else:
+            if type(value) is tuple: self.sub[ident], off = value
+            else: off = value
+            self.sym[ident] = off - self.base
 
     def map(self, addr, off=0):
         self = self._namesp
@@ -34,7 +36,7 @@ class Symtbl:
             self.sym[k] = v + off
 
     def rebase(self, off):
-        self.adjust(-off)
+        self.adjust(self.base - off)
 
     def __str__(_self):
         FMT = '\n{:<20} {:<20}'

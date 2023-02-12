@@ -1,0 +1,10 @@
+__pycache__/
+build/
+*.egg-info/
+a.out
+*.o
+*.elf
+*.exe
+*.dll
+*.a
+*.so

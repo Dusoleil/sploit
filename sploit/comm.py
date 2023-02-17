@@ -32,6 +32,8 @@ class Comm:
 
     def readline(self):
         data = self.back.stdin.readline()
+        if data.endswith(b'\n'):
+            data = data[:-1]
         if(data == b''):
             raise BrokenPipeError('Tried to read on broken pipe')
         if self.logonread : ilog(data, file=sys.stdout, color=NORMAL)
@@ -41,7 +43,8 @@ class Comm:
         data = b''
         try:
             for line in self.back.stdin:
-                if self.logonread : ilog(line, file=sys.stdout, color=NORMAL)
+                tolog = (line[:-1] if line.endswith(b'\n') else line)
+                if self.logonread : ilog(tolog, file=sys.stdout, color=NORMAL)
                 data += line
         except KeyboardInterrupt:
             pass

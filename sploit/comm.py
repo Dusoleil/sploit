@@ -110,6 +110,8 @@ class Comm:
         try:
             ilog("<--Interact Mode-->")
             os.set_blocking(stdin.fileno(), False)
+            l = self.logonread
+            self.logonread = True
 
             poll = select.poll()
             poll.register(self.back.stdin, event)
@@ -122,6 +124,7 @@ class Comm:
         except KeyboardInterrupt:
             pass
         finally:
+            self.logonread = l
             os.set_blocking(stdin.fileno(), True)
             ilog("<--Interact Mode Done-->")
 

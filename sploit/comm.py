@@ -91,7 +91,7 @@ class Comm:
         if self.logonwrite : ilog(data, file=sys.stdout, color=ALT)
         if self.readonwrite : self.readall_nonblock()
 
-    def writeline(self, data):
+    def writeline(self, data=b''):
         self.write(data + b'\n')
 
     def interact(self):

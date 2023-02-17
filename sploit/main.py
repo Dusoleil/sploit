@@ -48,13 +48,14 @@ def runscript(script, comm):
         code = compile(open(script).read(), script, 'exec')
         exec(code, {'io': comm, 'print': elog})
         ilog("Script Finished!")
-        comm.shutdown()
-        comm.readall()
         return
     except KeyboardInterrupt:
         pass
     except:
         ilog(traceback.format_exc(), end='', color=ERROR)
     finally:
+        comm.shutdown()
+        comm.readall()
         gc.collect()
+
     ilog("Script Ended Early!", color=WARNING)

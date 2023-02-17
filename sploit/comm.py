@@ -18,7 +18,10 @@ class Comm:
         self.back = backend
 
     def shutdown(self):
-        self.back.stdout.close()
+        try:
+            self.back.stdout.close()
+        except BrokenPipeError:
+            pass
 
     def read(self, size):
         data = os.read(self.back.stdin.fileno(), size)

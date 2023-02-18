@@ -24,7 +24,7 @@ class Comm:
             pass
 
     def read(self, size):
-        data = os.read(self.back.stdin.fileno(), size)
+        data = self.back.stdin.read(size)
         if(data == b''):
             raise BrokenPipeError('Tried to read on broken pipe')
         if self.logonread : ilog(data, file=sys.stdout, color=NORMAL)

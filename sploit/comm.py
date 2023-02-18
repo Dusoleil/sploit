@@ -120,6 +120,7 @@ class Comm:
             poll.register(self.back.stdin, event)
             poll.register(stdin, event)
 
+            readtable[self.back.stdin.fileno()]()
             while True:
                 for fd, e in poll.poll(self.timeout):
                     if not e & event: return

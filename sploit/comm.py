@@ -102,8 +102,12 @@ class Comm:
         event = select.POLLIN
 
         def readall_stdin():
-            for line in stdin:
-                self.write(line)
+            try:
+                os.set_blocking(stdin.fileno(), False)
+                for line in stdin:
+                    self.write(line)
+            finally:
+                os.set_blocking(stdin.fileno(), True)
 
         readtable = {
                 self.back.stdin.fileno(): self.readall_nonblock,
@@ -112,7 +116,6 @@ class Comm:
 
         try:
             ilog("<--Interact Mode-->")
-            os.set_blocking(stdin.fileno(), False)
             l = self.logonread
             self.logonread = True
 
@@ -129,7 +132,6 @@ class Comm:
             pass
         finally:
             self.logonread = l
-            os.set_blocking(stdin.fileno(), True)
             ilog("<--Interact Mode Done-->")
 
 def popen(cmdline=''):

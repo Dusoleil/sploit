@@ -26,13 +26,13 @@ class Payload:
         return f'{kind}_{ctr}'
 
     def _append(self, value, sym):
-        setattr(self.sym.map(0), sym, len(self))
+        (self.sym @ 0)[sym] = len(self)
         self.payload += value
         return self
 
     def _prepend(self, value, sym):
-        self.sym.adjust(len(value))
-        setattr(self.sym.map(0), sym, 0)
+        self.sym >>= len(value)
+        (self.sym @ 0)[sym] = 0
         self.payload = value + self.payload
         return self
 

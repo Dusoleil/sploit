@@ -1,7 +1,7 @@
-from sploit.mem import Symtbl
 from sploit.arch import arch
-from sploit.util import run_cmd_cached
 from sploit.log import ilog
+from sploit.symtbl import Symtbl
+from sploit.util import run_cmd_cached
 
 import re
 from collections import namedtuple as nt

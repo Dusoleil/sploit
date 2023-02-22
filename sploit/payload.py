@@ -1,5 +1,5 @@
 from sploit.arch import arch, itob
-from sploit.mem import Symtbl
+from sploit.symtbl import Symtbl
 
 class Payload:
     MAGIC = b'\xef'

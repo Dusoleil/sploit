@@ -54,9 +54,7 @@ def get_locals(binary,func):
     out = run_cmd(binary,cmd_locals)
     out = [re.split(r':?\s+',var) for var in out]
     out = {var[1]:-(int(var[0],0)-arch.wordsize) for var in out}
-    out = Symtbl(**out)
-    out.sbp = 0
-    return out
+    return Symtbl(sbp=0, **out)
 
 def ret_gadget(binary):
     ilog(f'Searching for a ret gadget in {binary} with r2...')

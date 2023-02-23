@@ -5,8 +5,9 @@ import traceback
 
 from sploit.comm import *
 from sploit.log import *
+from sploit import __version__
 
-def print_banner(color, line1='', line2='', line3=''):
+def print_banner(color, line1=__version__, line2='', line3=''):
     ilog()
     ilog(' ░▒█▀▀▀█░▒█▀▀█░▒█░░░░▒█▀▀▀█░▀█▀░▀▀█▀▀    ', end='', color=ALT)
     ilog(line1, color=ALT)

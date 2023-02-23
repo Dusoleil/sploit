@@ -1,0 +1,22 @@
+[project]
+name = "sploit"
+version = "0.1"
+description = "sploit is a process interaction automation tool with software exploitation focused utilities."
+readme = "README.txt"
+requires-python = ">=3.8"
+license = "Unlicense"
+license-files.paths = ["UNLICENSE"]
+authors = [
+    {name="dusoleil",email="howcansocksbereal@gmail.com"},
+    {name="Malfurious",email="m@lfurio.us"},
+]
+
+[project.urls]
+"Homepage" = "https://github.com/dusoleil/sploit"
+
+[project.scripts]
+sploit = "sploit.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

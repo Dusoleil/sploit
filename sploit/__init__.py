@@ -8,3 +8,5 @@ from sploit import (
         util,
         rev,
 )
+
+__version__ = util.git_version()

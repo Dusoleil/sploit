@@ -13,6 +13,7 @@ class Comm:
     flushonwrite = True
     readonwrite = False
     timeout = 250 # milliseconds
+    last = None # result of last discrete read
 
     def __init__(self, backend):
         self.back = backend
@@ -28,6 +29,7 @@ class Comm:
         if(data == b''):
             raise BrokenPipeError('Tried to read on broken pipe')
         if self.logonread : ilog(data, file=sys.stdout, color=NORMAL)
+        self.last = data
         return data
 
     def readline(self):
@@ -37,6 +39,7 @@ class Comm:
         if(data == b''):
             raise BrokenPipeError('Tried to read on broken pipe')
         if self.logonread : ilog(data, file=sys.stdout, color=NORMAL)
+        self.last = data
         return data
 
     def readall(self):
@@ -48,6 +51,7 @@ class Comm:
                 data += line
         except KeyboardInterrupt:
             pass
+        self.last = data
         return data
 
     def readall_nonblock(self):
@@ -59,7 +63,9 @@ class Comm:
             while True:
                 poll.poll(self.timeout)
                 d = self.readall()
-                if len(d) == 0: return data
+                if len(d) == 0:
+                    self.last = data
+                    return data
                 data += d
         finally:
             os.set_blocking(self.back.stdin.fileno(), True)
@@ -77,6 +83,7 @@ class Comm:
         finally:
             self.logonread = l
         if self.logonread : ilog(data, file=sys.stdout, color=NORMAL)
+        self.last = data
         return data
 
     def readlineuntil(self, pred, /, *args, **kwargs):
@@ -86,6 +93,7 @@ class Comm:
             dataarr.append(self.readline())
             if(pred(dataarr)):
                 break
+        self.last = dataarr
         return dataarr
 
     def write(self, data):

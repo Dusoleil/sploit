@@ -24,10 +24,15 @@ class Comm:
         except BrokenPipeError:
             pass
 
-    def read(self, size):
-        data = self.back.stdin.read(size)
-        if(data == b''):
-            raise BrokenPipeError('Tried to read on broken pipe')
+    def read(self, size=-1):
+        if size < 0:
+            return self.readall_nonblock()
+        elif size == 0:
+            data = b''
+        else:
+            data = self.back.stdin.read(size)
+            if(data == b''):
+                raise BrokenPipeError('Tried to read on broken pipe')
         if self.logonread : ilog(data, file=sys.stdout, color=NORMAL)
         self.last = data
         return data

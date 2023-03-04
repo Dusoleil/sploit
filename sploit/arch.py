@@ -1,4 +1,4 @@
-from collections import namedtuple as nt
+from dataclasses import dataclass
 
 def btoi(b, signed=False):
     return int.from_bytes(b, arch.endianness, signed=signed)
@@ -6,16 +6,18 @@ def btoi(b, signed=False):
 def itob(i, signed=False):
     return i.to_bytes(arch.wordsize, arch.endianness, signed=signed)
 
-Arch = nt("Arch", "wordsize  endianness  alignment  nopcode")
-x86      = Arch(          4,   'little',        16, b'\x90')
-x86_64   = Arch(          8,   'little',        16, b'\x90')
-ARM      = Arch(          4,   'little',         8, b'\xe1\xa0\x00\x00')
-THUMB    = Arch(          4,   'little',         8, b'\x46\xc0')
+@dataclass(frozen=True)
+class Arch:
+    wordsize: int
+    endianness: str
+    alignment: int
+    nopcode: bytes
+    def set(self,k):
+        self.__dict__.update(k.__dict__)
 
-class __ActiveArch__:
-    __arch = x86_64
-    def __getattr__(self,k):
-        return getattr(self.__arch,k)
-    def set(self,a):
-        self.__arch = a
-arch = __ActiveArch__()
+x86      = Arch( 4, 'little', 16, b'\x90')
+x86_64   = Arch( 8, 'little', 16, b'\x90')
+ARM      = Arch( 4, 'little',  8, b'\xe1\xa0\x00\x00')
+THUMB    = Arch( 4, 'little',  8, b'\x46\xc0')
+
+arch = Arch(**x86_64.__dict__)

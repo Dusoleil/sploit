@@ -143,17 +143,20 @@ class SymtblImpl:
         return len(self.__entries__)
 
     def __getitem__(self, symbol):
-        """Return symbol offset or subtable via subscript"""
+        """Return symbol offset, subtable, or translated offset via subscript"""
         if symbol == "base":
             return self.base
-        return self.__entries__[symbol] + (self.base + self.__adjust__)
+        offset = symbol if type(symbol) is int else self.__entries__[symbol]
+        return offset + (self.base + self.__adjust__)
 
     def __setitem__(self, symbol, value):
         """Set symbol offset or subtable via subscript"""
         if symbol == "base":
             object.__setattr__(self, "base", int(value))
         elif symbol in dir(self):
-            raise KeyError(f"Symtbl: name '{symbol}' is reserved")
+            raise KeyError(f"Symtbl: key is reserved: {symbol}")
+        elif type(symbol) is not str:
+            raise KeyError(f"Symtbl: key must be a string: {symbol}")
         else:
             self.__entries__[symbol] = value - (self.base + self.__adjust__)
 

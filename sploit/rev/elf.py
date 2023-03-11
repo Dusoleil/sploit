@@ -8,9 +8,10 @@ class ELF:
         self.libs = self.__LIBS__(libs)
         self.locals = self.__LOCALS__(self)
 
-    def __str__(self):
+    def __repr__(self):
         s = 'ELF: '
         s += self.path
+        s += '\n------------'
         s += '\nSymbol Table'
         s += '\n------------'
         s += '\n'
@@ -28,7 +29,7 @@ class ELF:
             get = super().__getitem__
             if(type(get(lib))==str):self[lib] = ELF(get(lib))
             return get(lib)
-        def __str__(self):
+        def __repr__(self):
             s = ''
             for name,lib in self.items():
                 s += '\n' + str(name) + ' => ' + lib if(type(lib)==str) else str(lib.path)

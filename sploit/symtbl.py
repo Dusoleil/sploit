@@ -170,11 +170,7 @@ class SymtblImpl:
         return symbol in self.__entries__
 
     def __repr__(self):
-        """Return string representation of Symtbl"""
-        return str(self)
-
-    def __str__(self):
-        """Return string representation of Symtbl"""
+        """Return human-readable Symtbl"""
         FMT = "\n{:<20} {:<20}"
         s = f"{len(self)} symbols @ {hex(self)}"
         s += FMT.format("ADDRESS", "SYMBOL")

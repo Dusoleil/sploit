@@ -175,6 +175,6 @@ class SymtblImpl:
         s = f"{len(self)} symbols @ {hex(self)}"
         s += FMT.format("ADDRESS", "SYMBOL")
         for symbol, offset in sorted(self, key=lambda v: int(v[1])):
-            disp = f"[{symbol}]" if type(offset) is SymtblImpl else symbol
+            disp = f"[{symbol}]" if type(offset) is not int else symbol
             s += FMT.format(hex(offset), disp)
         return s

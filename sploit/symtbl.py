@@ -173,7 +173,8 @@ class SymtblImpl:
         """Return human-readable Symtbl"""
         FMT = "\n{:<20} {:<20}"
         s = f"{len(self)} symbols @ {hex(self)}"
-        s += FMT.format("ADDRESS", "SYMBOL")
+        if len(self) > 0:
+            s += FMT.format("ADDRESS", "SYMBOL")
         for symbol, offset in sorted(self, key=lambda v: int(v[1])):
             disp = f"[{symbol}]" if type(offset) is not int else symbol
             s += FMT.format(hex(offset), disp)

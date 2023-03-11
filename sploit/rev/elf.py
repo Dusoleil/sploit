@@ -17,7 +17,7 @@ class ELF:
         s += '\n'
         s += str(self.sym)
         s += '\n------------'
-        s += '\nLibararies'
+        s += '\nLibraries'
         s += '\n------------'
         s += str(self.libs)
         return s
@@ -32,7 +32,7 @@ class ELF:
         def __repr__(self):
             s = ''
             for name,lib in self.items():
-                s += '\n' + str(name) + ' => ' + lib if(type(lib)==str) else str(lib.path)
+                s += '\n' + str(name) + ' => ' + (lib if(type(lib)==str) else str(lib.path))
             return s
 
     class __LOCALS__:

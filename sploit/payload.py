@@ -47,6 +47,22 @@ class Payload:
         values = [ itob(v) for v in values ]
         return self.bin(*values, sym=self._name('int', sym))
 
+    def int8(self, *values, sym=None):
+        values = [ itob(v, 1) for v in values ]
+        return self.bin(*values, sym=self._name('int', sym))
+
+    def int16(self, *values, sym=None):
+        values = [ itob(v, 2) for v in values ]
+        return self.bin(*values, sym=self._name('int', sym))
+
+    def int32(self, *values, sym=None):
+        values = [ itob(v, 4) for v in values ]
+        return self.bin(*values, sym=self._name('int', sym))
+
+    def int64(self, *values, sym=None):
+        values = [ itob(v, 8) for v in values ]
+        return self.bin(*values, sym=self._name('int', sym))
+
     def ret(self, *values, sym=None):
         return self.int(*values, sym=self._name('ret', sym))
 

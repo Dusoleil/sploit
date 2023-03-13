@@ -100,8 +100,14 @@ def uint64(i):
     """Convert given int to unsigned 64 bit int."""
     return __int(i, False, 8)
 
-def btoi(b, signed=False):
-    return int.from_bytes(b, arch.endianness, signed=signed)
+def btoi(b, byteorder=None):
+    """Convert given byte array to an int."""
+    byteorder = byteorder or arch.endianness
+    return int.from_bytes(b, byteorder, signed=False)
 
-def itob(i, signed=False):
-    return i.to_bytes(arch.wordsize, arch.endianness, signed=signed)
+def itob(i, width=None, byteorder=None):
+    """Convert given int to a byte array."""
+    width = width or arch.wordsize
+    byteorder = byteorder or arch.endianness
+    return __int(i,False,width).to_bytes(width, byteorder, signed=False)
+

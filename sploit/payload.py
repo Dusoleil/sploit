@@ -43,8 +43,8 @@ class Payload:
         values = [ v.encode() + b'\x00' for v in values ]
         return self.bin(*values, sym=self._name('str', sym))
 
-    def int(self, *values, sym=None, signed=False):
-        values = [ itob(v, signed=signed) for v in values ]
+    def int(self, *values, sym=None):
+        values = [ itob(v) for v in values ]
         return self.bin(*values, sym=self._name('int', sym))
 
     def ret(self, *values, sym=None):

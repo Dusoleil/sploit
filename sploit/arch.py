@@ -51,6 +51,7 @@ arch = Arch(**x86_64.__dict__)
 
 def __int(i, signed=False, width=None):
     # type conversion from int to int of given sign and width
+    i = int(i)
     width = width or arch.wordsize
     bits = 8 * width
     if signed:
@@ -110,4 +111,3 @@ def itob(i, width=None, byteorder=None):
     width = width or arch.wordsize
     byteorder = byteorder or arch.endianness
     return __int(i,False,width).to_bytes(width, byteorder, signed=False)
-

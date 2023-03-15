@@ -1,10 +1,13 @@
 from sploit.arch import arch
 from sploit.log import ilog
+from sploit.rev.gadget import Gadget
 from sploit.symtbl import Symtbl
 from sploit.util import run_cmd_cached
 
-import re
 from collections import namedtuple as nt
+from functools import cache
+import json
+import re
 
 def run_cmd(binary,cmd):
     return run_cmd_cached(['r2','-q','-c',cmd,'-e','scr.color=false',binary])
@@ -56,30 +59,59 @@ def get_locals(binary,func):
     out = {var[1]:-(int(var[0],0)-arch.wordsize) for var in out}
     return Symtbl(sbp=0, **out)
 
-def ret_gadget(binary):
-    ilog(f'Searching for a ret gadget in {binary} with r2...')
+def rop_json(binary):
+    # Gadget JSON schema:
+    # [
+    #   {
+    #     retaddr: int
+    #     size: int
+    #     opcodes: [
+    #       {
+    #         offset: int
+    #         size: int
+    #         opcode: string
+    #         type: string
+    #       }
+    #     ]
+    #   }
+    # ]
+    return json.loads("\n".join(run_cmd(binary, "/Rj")))
 
-    cmd_ret = '/R/ ret~ret'
-    out = run_cmd(binary,cmd_ret)
-    out = out[0]
-    out = re.split(r'\s+',out)
-    out = out[1]
-    return int(out,0)
+@cache
+def rop_gadgets(binary, *regexes, cont=False):
+    ilog(f"Searching {binary} for {'; '.join(regexes)} gadgets with r2...")
+    gadgets = rop_json(binary)
+    results = []
 
-def rop_gadget(binary,gad):
-    ilog(f'Searching for "{gad}" gadgets in {binary} with r2...')
+    for gadget in gadgets:
+        opcodes = gadget['opcodes']
+        end_idx = len(opcodes) - len(regexes)
 
-    cmd_gad = f'"/R/q {gad}"'
-    out = run_cmd(binary,cmd_gad)
-    Gad = nt("Gad", "addr asm")
-    out = [Gad(int(gad[:gad.find(':')],0),gad[gad.find(':')+2:]) for gad in out]
-    return out
+        for start_idx in range(end_idx + 1):
+            idx = start_idx
+            size = end_idx - idx
+            regexes_use = (regexes + (".*",) * size) if cont else regexes
 
-def rop_gadget_exact(binary,gad):
-    gads = rop_gadget(binary,gad)
-    for g in gads:
-        if g.asm[:-1].replace('; ',';') == gad:
-            return g
+            offset = opcodes[idx]['offset']
+            matches = []
+
+            for regex in regexes_use:
+                match = re.fullmatch(regex, opcodes[idx]['opcode'])
+                if not match:
+                    break
+                matches.append(match)
+                idx += 1
+
+            if len(matches) == len(regexes_use):
+                results.append(Gadget(offset, matches))
+
+    return results
+
+def rop_gadget(binary, *regexes):
+    results = rop_gadgets(binary, *regexes)
+    if len(results) == 0:
+        raise LookupError(f"Could not find gadget for: {'; '.join(regexes)}")
+    return results[0]
 
 def get_call_returns(binary,xref_from,xref_to):
     ilog(f'Getting return addresses of calls from {hex(xref_from)} to {hex(xref_to)} in {binary} with r2...')

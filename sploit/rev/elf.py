@@ -44,11 +44,8 @@ class ELF:
     def retaddr(self, caller, callee):
         return [c.ret_addr for c in r2.get_call_returns(self.path, caller, callee)]
 
-    def retgad(self):
-        return r2.ret_gadget(self.path)
+    def gadgets(self, *regexes, cont=False):
+        return r2.rop_gadgets(self.path, *regexes, cont=cont)
 
-    def gad(self, gad):
-        return [g.addr for g in r2.rop_gadget(self.path, gad)]
-
-    def egad(self, gad):
-        return r2.rop_gadget_exact(self.path, gad).addr
+    def gadget(self, *regexes):
+        return r2.rop_gadget(self.path, *regexes)

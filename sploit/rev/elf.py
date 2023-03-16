@@ -1,4 +1,5 @@
 from sploit.rev import ldd, r2
+from sploit.arch import lookup_arch
 from itertools import zip_longest
 
 class ELF:
@@ -14,6 +15,7 @@ class ELF:
         bininfo = r2.get_bin_info(self.path)
         self.info = self.__BININFO__(bininfo)
         self.security = self.__SECINFO__(bininfo)
+        self.arch = lookup_arch(self.info.arch_string, self.info.wordsize, self.info.endianness)
 
     def __repr__(self):
         s = 'ELF: '

@@ -156,7 +156,7 @@ class SymtblImpl:
         elif symbol in dir(self):
             raise KeyError(f"Symtbl: key is reserved: {symbol}")
         elif type(symbol) is not str:
-            raise KeyError(f"Symtbl: key must be a string: {symbol}")
+            raise TypeError(f"Symtbl: key must be a string: {symbol}")
         else:
             self.__entries__[symbol] = value - (self.base + self.__adjust__)
 

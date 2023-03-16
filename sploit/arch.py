@@ -38,9 +38,11 @@ class Arch:
     alignment: int
     nopcode: bytes
 
-    def set(self,k):
+    def set(self,new_arch):
         """Copy the given Arch into this instance."""
-        self.__dict__.update(k.__dict__)
+        if type(new_arch) is not Arch:
+            raise TypeError(f'arch: new_arch must be an Arch: {new_arch}')
+        self.__dict__.update(new_arch.__dict__)
 
 x86      = Arch( 4, 'little', 16, b'\x90')
 x86_64   = Arch( 8, 'little', 16, b'\x90')
@@ -49,17 +51,6 @@ THUMB    = Arch( 4, 'little',  8, b'\x46\xc0')
 
 arch = Arch(**x86_64.__dict__)
 
-def __int(i, signed=False, width=None):
-    # type conversion from int to int of given sign and width
-    i = int(i)
-    width = width or arch.wordsize
-    bits = 8 * width
-    if signed:
-        sign_bit = 1 << (bits - 1)
-        return (i & (sign_bit - 1)) - (i & sign_bit)
-    else:
-        mask = (1 << bits) - 1
-        return i & mask
 
 def sint(i):
     """Convert given int to signed int of arch.wordsize width."""
@@ -111,3 +102,15 @@ def itob(i, width=None, byteorder=None):
     width = width or arch.wordsize
     byteorder = byteorder or arch.endianness
     return __int(i,False,width).to_bytes(width, byteorder, signed=False)
+
+def __int(i, signed=False, width=None):
+    # type conversion from int to int of given sign and width
+    i = int(i)
+    width = width or arch.wordsize
+    bits = 8 * width
+    if signed:
+        sign_bit = 1 << (bits - 1)
+        return (i & (sign_bit - 1)) - (i & sign_bit)
+    else:
+        mask = (1 << bits) - 1
+        return i & mask

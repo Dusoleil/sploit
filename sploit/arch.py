@@ -22,18 +22,21 @@ def __define_architectures():
     # All predefined architectures should be listed here
     # These will also be added to the module's namespace
     __arch_list = {
-        'x86'       : Arch( 4, 'little', 16, b'\x90'),
-        'x86_64'    : Arch( 8, 'little', 16, b'\x90'),
-        'ARM'       : Arch( 4, 'little',  8, b'\xe1\xa0\x00\x00'),
-        'THUMB'     : Arch( 4, 'little',  8, b'\x46\xc0')
+        'x86'       : Arch( 'x86', 4, 'little', 16, b'\x90'),
+        'x86_64'    : Arch( 'x86', 8, 'little', 16, b'\x90'),
+        'ARM'       : Arch( 'arm', 4, 'little',  8, b'\xe1\xa0\x00\x00'),
+        'THUMB'     : Arch( 'arm', 4, 'little',  8, b'\x46\xc0')
     }
     globals().update(__arch_list)
+    global __arch_lookup
+    __arch_lookup = {(a.arch_string, a.wordsize, a.endianness) : a for a in reversed(__arch_list.values())}
 
 @dataclass(frozen=True)
 class Arch:
     """
     Dataclass of information about a target architecture
 
+    arch_string (str): string returned by r2 iI in the arch field
     wordsize (int): the width, in bytes, of the natural unit of data
     endianness (str): byte order. either "little" or "big"
     alignment (int): the multiple, in bytes, that return addresses must exist
@@ -41,6 +44,7 @@ class Arch:
     nopcode (bytes): the exact bytes of a "do nothing" instruction
     """
 
+    arch_string: str
     wordsize: int
     endianness: str
     alignment: int
@@ -56,8 +60,18 @@ __define_architectures()
 DEFAULT_ARCH = x86_64
 arch = Arch(**DEFAULT_ARCH.__dict__)
 
+def lookup_arch(arch_string, wordsize, endianness):
+    """
+    Return an Arch object with the matching search parameters.
 
+    If a predefined Arch matches the specified fields, it will be returned.
+    Otherwise, None is returned.
 
+    arch_string (str): The "arch" string returned from r2 iI.
+    wordsize (int): The natural width of an int in bytes.
+    endianness (str): The order of bytes in an int (either "little" or "big")
+    """
+    return __arch_lookup.get((arch_string, wordsize, endianness))
 
 def sint(i):
     """Convert given int to signed int of arch.wordsize width."""

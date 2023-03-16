@@ -16,11 +16,6 @@ def get_elf_symbols(elf):
     ilog(f'Retrieving symbols of {elf} with r2...')
     out = {}
 
-    cmd_base = 'iI~baddr'
-    base = run_cmd(elf,cmd_base)
-    base = re.split(r'\s+',base[0])[1]
-    base = int(base,0)
-
     cmd_syms = 'is'
     out_syms = run_cmd(elf,cmd_syms)
     out_syms = [re.split(r'\s+',sym) for sym in out_syms][4:]
@@ -46,6 +41,9 @@ def get_elf_symbols(elf):
     out_strs = [re.split(r'\s+',sym) for sym in out_strs]
     out_strs = {sym[2][sym[2].rfind('.')+1:]:int(sym[0],0) for sym in out_strs}
     out.update(out_strs)
+
+    base = get_bin_info(elf).baddr
+    base = int(base,0)
 
     return Symtbl(base=base, **out)
 
@@ -113,6 +111,7 @@ def rop_gadget(binary, *regexes):
         raise LookupError(f"Could not find gadget for: {'; '.join(regexes)}")
     return results[0]
 
+@cache
 def get_call_returns(binary,xref_from,xref_to):
     ilog(f'Getting return addresses of calls from {hex(xref_from)} to {hex(xref_to)} in {binary} with r2...')
 
@@ -128,6 +127,7 @@ def get_call_returns(binary,xref_from,xref_to):
         rets.append(CallRet(xref_from,xref_to,int(x[0],0),int(ret[0],0)))
     return rets
 
+@cache
 def get_bin_info(binary):
     ilog(f'Retrieving binary and security info about {binary} with r2...')
 

@@ -127,3 +127,15 @@ def get_call_returns(binary,xref_from,xref_to):
         ret = run_cmd(binary,cmd_ret)
         rets.append(CallRet(xref_from,xref_to,int(x[0],0),int(ret[0],0)))
     return rets
+
+def get_bin_info(binary):
+    ilog(f'Retrieving binary and security info about {binary} with r2...')
+
+    BinInfo = nt("BinInfo", "bintype os arch bits endian baddr canary nx pic relocs relro rpath stripped")
+    cmd_info = 'iI'
+    info = run_cmd(binary, cmd_info)
+    info = [re.split(r'\s+',i,1) for i in info]
+    info = {i[0]:i[1] for i in info}
+    info = [info[f] for f in BinInfo._fields]
+    ret = BinInfo(*info)
+    return ret

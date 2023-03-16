@@ -8,18 +8,26 @@ behaviors and bases them on a global architecture that is also configured here.
 Users can set the global arch with arch.set() and all of the methods in this
 module will honor it.  An architecture can be defined through the Arch dataclass
 and there are also several predefined architecture constants that can be used.
+These are accessible by name at module scope. (i.e. sploit.arch.x86_64)
 
 arch (Arch): the architecture config that sploit will use whenever it needs to
 know the architecture of the target
 
-predefined architectures:
-    x86
-    x86_64
-    ARM
-    THUMB
+DEFAULT_ARCH (Arch): the default architecture that arch is set to
 """
 
 from dataclasses import dataclass
+
+def __define_architectures():
+    # All predefined architectures should be listed here
+    # These will also be added to the module's namespace
+    __arch_list = {
+        'x86'       : Arch( 4, 'little', 16, b'\x90'),
+        'x86_64'    : Arch( 8, 'little', 16, b'\x90'),
+        'ARM'       : Arch( 4, 'little',  8, b'\xe1\xa0\x00\x00'),
+        'THUMB'     : Arch( 4, 'little',  8, b'\x46\xc0')
+    }
+    globals().update(__arch_list)
 
 @dataclass(frozen=True)
 class Arch:
@@ -43,13 +51,12 @@ class Arch:
         if type(new_arch) is not Arch:
             raise TypeError(f'arch: new_arch must be an Arch: {new_arch}')
         self.__dict__.update(new_arch.__dict__)
+__define_architectures()
 
-x86      = Arch( 4, 'little', 16, b'\x90')
-x86_64   = Arch( 8, 'little', 16, b'\x90')
-ARM      = Arch( 4, 'little',  8, b'\xe1\xa0\x00\x00')
-THUMB    = Arch( 4, 'little',  8, b'\x46\xc0')
+DEFAULT_ARCH = x86_64
+arch = Arch(**DEFAULT_ARCH.__dict__)
 
-arch = Arch(**x86_64.__dict__)
+
 
 
 def sint(i):

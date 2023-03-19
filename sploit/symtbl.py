@@ -146,7 +146,7 @@ class SymtblImpl:
         """Return symbol offset, subtable, or translated offset via subscript"""
         if symbol == "base":
             return self.base
-        offset = symbol if type(symbol) is int else self.__entries__[symbol]
+        offset = self.__entries__[symbol] if type(symbol) is str else symbol
         return offset + (self.base + self.__adjust__)
 
     def __setitem__(self, symbol, value):

@@ -2,7 +2,7 @@
 name = "sploit"
 description = "sploit is a process interaction automation tool with software exploitation focused utilities."
 readme = "README.txt"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = "Unlicense"
 license-files.paths = ["UNLICENSE"]
 authors = [

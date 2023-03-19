@@ -10,7 +10,7 @@ import json
 import re
 
 def run_cmd(binary,cmd):
-    return run_cmd_cached(['r2','-q','-c',cmd,'-e','scr.color=false','-e','rop.len=10',binary])
+    return run_cmd_cached(['r2','-q','-c',cmd,'-e','scr.color=false','-e','rop.len=10','-e','search.in=io.maps.x',binary])
 
 def get_elf_symbols(elf):
     ilog(f'Retrieving symbols of {elf} with r2...')

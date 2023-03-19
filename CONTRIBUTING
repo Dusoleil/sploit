@@ -1,0 +1,36 @@
+sploit is currently developed by a two man team and the majority of our workflow
+isn't publicly available.  We have a private issue tracker and we handle code
+integration through email between us.  If we see significant community interest
+in the project, we may create a public mailing list and maybe publicize our
+issue tracker.  For now, though, if you want to contribute to sploit, the best
+way to do so is to get in contact with one of us through email.
+
+If you see something simple that needs to be fixed, feel free to create a patch
+and email it to us!
+
+If you have an issue that you can't/won't fix yourself but think it deserves
+attention, shoot us an email!  We can give feedback on how your idea fits in
+with our vision or get an issue tracked internally.
+
+If you want to make a larger contribution, please reach out to us first so that
+we can ensure your idea fits in with our vision before you spend a lot of time
+on it.  After that, we will have you submit your work by emailing us patches.
+
+We currently have no plans of using Github's issue tracker or Pull Request
+systems.  If you submit things through them, they will likely be ignored.
+
+Any submitted patches should contain a commit message following the style of
+https://commit.style/ and including a sign-off.
+```
+$ git commit -s
+```
+
+Creating patches is easy with git send-email or git format-patch.  You can read
+more about this process here https://git-send-email.io/.
+```
+$ git send-email origin/master --to=howcansocksbereal@gmail.com --subject-prefix="PATCH sploit"
+```
+
+Please try to follow the style of the surrounding code in the rest of the file.
+If you add something new, make sure to add docstrings to the public API.  If you
+modify existing code, make sure you update the docstrings accordingly.

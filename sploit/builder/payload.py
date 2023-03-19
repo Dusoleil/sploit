@@ -36,6 +36,9 @@ class Payload:
         self.payload = value + self.payload
         return self
 
+    def end(self):
+        return self.sym.base + len(self)
+
     def bin(self, *values, sym=None):
         return self._append(b''.join(values), sym=self._name('bin', sym))
 

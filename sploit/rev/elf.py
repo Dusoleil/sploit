@@ -198,8 +198,8 @@ class ELF:
         cont (bool): If true, this function will return all of the assembly past
         the found gadget up to the next return point.
         """
-        return r2.rop_gadgets(self.path, *regexes, cont=cont)
+        return [ self.sym[g] for g in r2.rop_gadgets(self.path, *regexes, cont=cont) ]
 
     def gadget(self, *regexes):
         """Returns the first gadget found that matches the given regex list."""
-        return r2.rop_gadget(self.path, *regexes)
+        return self.sym[r2.rop_gadget(self.path, *regexes)]

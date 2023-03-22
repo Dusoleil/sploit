@@ -166,7 +166,7 @@ class SymtblImpl:
 
     def __iter__(self):
         """Iterate over table entries as key:value tuples, like dict.items()"""
-        return iter({ k: self[k] for k in self.__entries__ }.items())
+        return iter(sorted({ k: self[k] for k in self.__entries__ }.items(), key=lambda v: int(v[1])))
 
     def __contains__(self, symbol):
         """Test symbol name membership in table"""
@@ -178,7 +178,7 @@ class SymtblImpl:
         s = f"{len(self)} symbols @ {hex(self)}"
         if len(self) > 0:
             s += FMT.format("ADDRESS", "SYMBOL")
-        for symbol, offset in sorted(self, key=lambda v: int(v[1])):
+        for symbol, offset in self:
             disp = f"[{symbol}]" if type(offset) is not int else symbol
             s += FMT.format(hex(offset), disp)
         return s

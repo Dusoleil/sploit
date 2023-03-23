@@ -15,8 +15,7 @@ def run_cmd(binary,cmd):
 def get_elf_symbols(elf):
     ilog(f'Retrieving symbols of {elf} with r2...')
 
-    base = get_bin_info(elf).baddr
-    base = int(base, 0)
+    base = get_bin_info(elf)['baddr']
 
     sect = json.loads(run_cmd(elf,'iSj')[0])
     sect = {s['name']:s['vaddr'] for s in sect}
@@ -81,7 +80,7 @@ def rop_gadgets(binary, *regexes, cont=False):
     ilog(f"Searching {binary} for {'; '.join(regexes)} gadgets with r2...")
     gadgets = rop_json(binary)
     results = []
-    base = int(get_bin_info(binary).baddr, 0)
+    base = get_bin_info(binary)['baddr']
 
     for gadget in gadgets:
         opcodes = gadget['opcodes']
@@ -133,11 +132,4 @@ def get_call_returns(binary,xref_from,xref_to):
 def get_bin_info(binary):
     ilog(f'Retrieving binary and security info about {binary} with r2...')
 
-    BinInfo = nt("BinInfo", "bintype os arch bits endian baddr canary nx pic relocs relro rpath stripped")
-    cmd_info = 'iI'
-    info = run_cmd(binary, cmd_info)
-    info = [re.split(r'\s+',i,1) for i in info]
-    info = {i[0]:i[1] for i in info}
-    info = [info[f] for f in BinInfo._fields]
-    ret = BinInfo(*info)
-    return ret
+    return json.loads(run_cmd(binary,'iIj')[0])

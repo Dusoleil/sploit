@@ -147,12 +147,12 @@ class ELF:
         # Fancy magic class that provides a psuedo-namespace to get properties of the binary
         def __init__(self, bininfo):
             self.info = {
-                    "type"          : bininfo.bintype,
-                    "os"            : bininfo.os,
-                    "baddr"         : int(bininfo.baddr,0),
-                    "arch_string"   : bininfo.arch,
-                    "wordsize"      : int(bininfo.bits)//8,
-                    "endianness"    : bininfo.endian,
+                    "type"          : bininfo['bintype'],
+                    "os"            : bininfo['os'],
+                    "baddr"         : bininfo['baddr'],
+                    "arch_string"   : bininfo['arch'],
+                    "wordsize"      : bininfo['bits']//8,
+                    "endianness"    : bininfo['endian'],
                 }
         def __getattr__(self, k):
             return self.info[k]
@@ -166,15 +166,14 @@ class ELF:
     class __SECINFO__(__BININFO__):
         # Fancy magic class that provides a psuedo-namespace to get security properties of the binary
         def __init__(self, bininfo):
-            bool = lambda s : s == 'true' or s == 'True'
             self.info = {
-                    "stripped"      : bool(bininfo.stripped),
-                    "pic"           : bool(bininfo.pic),
-                    "relro"         : bininfo.relro,
-                    "relocs"        : bool(bininfo.relocs),
-                    "canary"        : bool(bininfo.canary),
-                    "nx"            : bool(bininfo.nx),
-                    "rpath"         : bininfo.rpath,
+                    "stripped"      : bininfo['stripped'],
+                    "pic"           : bininfo['pic'],
+                    "relro"         : bininfo.get('relro',''),
+                    "relocs"        : bininfo['relocs'],
+                    "canary"        : bininfo['canary'],
+                    "nx"            : bininfo['nx'],
+                    "rpath"         : bininfo['rpath'],
                 }
 
     def retaddr(self, caller, callee):

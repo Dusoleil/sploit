@@ -32,8 +32,7 @@ def get_elf_symbols(elf):
     syms = Symtbl(base=base, **syms)
 
     got = json.loads(run_cmd(elf,'irj')[0])
-    got = [g for g in got if g['type'].startswith('SET')]
-    got = {sym['name']:sym['vaddr'] for sym in got}
+    got = {sym['name']:sym['vaddr'] for sym in got if 'name' in sym}
     got = Symtbl(base=sect.get('.got',0), **got)
 
     strings = json.loads(run_cmd(elf,'izj')[0])

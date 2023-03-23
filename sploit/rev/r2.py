@@ -79,6 +79,7 @@ def rop_gadgets(binary, *regexes, cont=False):
     ilog(f"Searching {binary} for {'; '.join(regexes)} gadgets with r2...")
     gadgets = rop_json(binary)
     results = []
+    result_offsets = []
     base = get_bin_info(binary)['baddr']
 
     for gadget in gadgets:
@@ -91,6 +92,9 @@ def rop_gadgets(binary, *regexes, cont=False):
             regexes_use = (regexes + (".*",) * size) if cont else regexes
 
             offset = opcodes[idx]['offset'] - base
+            if offset in result_offsets:
+                continue
+
             matches = []
 
             for regex in regexes_use:
@@ -102,6 +106,7 @@ def rop_gadgets(binary, *regexes, cont=False):
 
             if len(matches) == len(regexes_use):
                 results.append(Gadget(offset, matches))
+                result_offsets.append(offset)
 
     return results
 

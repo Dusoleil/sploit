@@ -14,38 +14,39 @@ def run_cmd(binary,cmd):
 
 def get_elf_symbols(elf):
     ilog(f'Retrieving symbols of {elf} with r2...')
-    out = {}
-
-    cmd_syms = 'is'
-    out_syms = run_cmd(elf,cmd_syms)
-    out_syms = [re.split(r'\s+',sym) for sym in out_syms][4:]
-    out_syms = [sym for sym in out_syms if sym[6].find('.')<0]
-    out_syms = [sym for sym in out_syms if sym[4]=='FUNC' or sym[4]=='LOOS' or sym[4]=='TLS']
-    out_syms = {sym[6]:int(sym[2],0) for sym in out_syms}
-    out.update(out_syms)
-
-    cmd_syms = 'ii~ FUNC '
-    out_syms = run_cmd(elf,cmd_syms)
-    out_syms = [re.split(r'\s+',sym) for sym in out_syms]
-    out_syms = {"_PLT_"+sym[4]:int(sym[1],0) for sym in out_syms}
-    out.update(out_syms)
-
-    cmd_syms = 'fs relocs;f'
-    out_syms = run_cmd(elf,cmd_syms)
-    out_syms = [re.split(r'\s+',sym) for sym in out_syms]
-    out_syms = {"_GOT_"+sym[2][sym[2].rfind('.')+1:]:int(sym[0],0) for sym in out_syms}
-    out.update(out_syms)
-
-    cmd_strs = 'fs strings;f'
-    out_strs = run_cmd(elf,cmd_strs)
-    out_strs = [re.split(r'\s+',sym) for sym in out_strs]
-    out_strs = {sym[2][sym[2].rfind('.')+1:]:int(sym[0],0) for sym in out_strs}
-    out.update(out_strs)
 
     base = get_bin_info(elf).baddr
-    base = int(base,0)
+    base = int(base, 0)
 
-    return Symtbl(base=base, **out)
+    sect = json.loads(run_cmd(elf,'iSj')[0])
+    sect = {s['name']:s['vaddr'] for s in sect}
+
+    syms = json.loads(run_cmd(elf,'isj')[0])
+    syms = [s for s in syms if s['type'] in ['OBJ', 'FUNC', 'NOTYPE']]
+
+    plt = [s for s in syms if s['is_imported']]
+    plt = {sym['realname']:sym['vaddr'] for sym in plt}
+    plt = Symtbl(base=sect.get('.plt',0), **plt)
+
+    syms = [s for s in syms if not s['is_imported']]
+    syms = {sym['realname']:sym['vaddr'] for sym in syms}
+    syms = Symtbl(base=base, **syms)
+
+    got = json.loads(run_cmd(elf,'irj')[0])
+    got = [g for g in got if g['type'].startswith('SET')]
+    got = {sym['name']:sym['vaddr'] for sym in got}
+    got = Symtbl(base=sect.get('.got',0), **got)
+
+    strings = json.loads(run_cmd(elf,'izj')[0])
+    strings = {s['string']:s['vaddr'] for s in strings}
+    strings = Symtbl(base=sect.get('.rodata',0), **strings)
+
+    sect = Symtbl(**sect)
+    syms.sect = sect
+    syms.imp = plt
+    syms.rel = got
+    syms.str = strings
+    return syms
 
 def get_locals(binary,func):
     ilog(f'Retrieving local stack frame of {hex(func)} in {binary} with r2...')

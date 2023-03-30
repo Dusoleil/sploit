@@ -55,3 +55,28 @@ You can also directly run sploit scripts with the following shebang
 ```
 #!/usr/bin/env sploit
 ```
+
+Docker Image
+--------------
+In addition to a local pip install, sploit is also deployable via Docker.  Build
+the image using the supplied Dockerfile with:
+```
+$ docker build -t sploit .
+```
+
+The container runs in the style of an application, and therefore expects to be
+interactive.  Also note that it is useful to mount your working directory in the
+container, so that the running sploit instance can actually access your target
+files or expose its pipes to you (the default working dir of the container is
+/home).  Therefore a basic command to run a containerized sploit would be:
+```
+$ docker run --rm -it -v $PWD:/home sploit exploit.py ./target target_args
+```
+
+The use of Scuba (pip install scuba) is recommended to make using ephemeral,
+interactive containers more convenient.  In this case it has the added benefit
+of automatically creating and executing within an unprivileged user inside the
+container:
+```
+$ scuba --image sploit exploit.py ./target target_args
+```

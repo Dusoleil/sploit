@@ -75,7 +75,7 @@ with the Symtbl base address.
 
 def Symtbl(*, base=0, **symbols):
     """
-    Create a new Symtbl object
+    Create a new Symtbl object.
 
     Return an empty Symtbl or, optionally, one initialized with the given
     symbol values.  Arguments _must_ be keyword arguments.
@@ -93,64 +93,64 @@ class SymtblImpl:
     """Symtbl implementation class"""
 
     def __init__(self, entries, adjust, base):
-        """Construct Symtbl from instance data"""
+        """Construct Symtbl from instance data."""
         object.__setattr__(self, "__entries__", entries)
         object.__setattr__(self, "__adjust__",  adjust)
         object.__setattr__(self, "base", base)
 
     def __index__(self):
-        """Convert object to integer using base value"""
+        """Convert object to integer using base value."""
         return self.base
 
     def __matmul__(self, base):
-        """Create remapped version of object at absolute base"""
+        """Create remapped version of object at absolute base."""
         return SymtblImpl(self.__entries__, self.__adjust__, int(base))
 
     def __add__(self, offset):
-        """Create remapped version of object at relative base"""
+        """Create remapped version of object at relative base."""
         return self @ (self.base + offset)
 
     def __sub__(self, offset):
-        """Create remapped version of object at relative base"""
+        """Create remapped version of object at relative base."""
         return self @ (self.base - offset)
 
     def __rshift__(self, offset):
-        """Create symbol adjusted version of object"""
+        """Create symbol adjusted version of object."""
         return SymtblImpl(self.__entries__, self.__adjust__ + int(offset), self.base)
 
     def __lshift__(self, offset):
-        """Create symbol adjusted version of object"""
+        """Create symbol adjusted version of object."""
         return self >> (-offset)
 
     def __mod__(self, offset):
-        """Create symbol rebased version of object"""
+        """Create symbol rebased version of object."""
         return self >> (self.base - offset)
 
     def __getattr__(self, symbol):
-        """Return symbol offset or subtable via pseudo-attribute"""
+        """Return symbol offset or subtable via pseudo-attribute."""
         return self[symbol]
 
     def __setattr__(self, symbol, value):
-        """Set symbol offset or subtable via pseudo-attribute"""
+        """Set symbol offset or subtable via pseudo-attribute."""
         self[symbol] = value
 
     def __delattr__(self, symbol):
-        """Unset symbol via pseudo-attribute"""
+        """Unset symbol via pseudo-attribute."""
         del self[symbol]
 
     def __len__(self):
-        """Return number of defined symbols"""
+        """Return number of defined symbols."""
         return len(self.__entries__)
 
     def __getitem__(self, symbol):
-        """Return symbol offset, subtable, or translated offset via subscript"""
+        """Return symbol offset, subtable, or translated offset via subscript."""
         if symbol == "base":
             return self.base
         offset = self.__entries__[symbol] if type(symbol) is str else symbol
         return offset + (self.base + self.__adjust__)
 
     def __setitem__(self, symbol, value):
-        """Set symbol offset or subtable via subscript"""
+        """Set symbol offset or subtable via subscript."""
         if symbol == "base":
             object.__setattr__(self, "base", int(value))
         elif symbol in dir(self):
@@ -161,19 +161,19 @@ class SymtblImpl:
             self.__entries__[symbol] = value - (self.base + self.__adjust__)
 
     def __delitem__(self, symbol):
-        """Unset symbol via subscript"""
+        """Unset symbol via subscript."""
         del self.__entries__[symbol]
 
     def __iter__(self):
-        """Iterate over table entries as key:value tuples, like dict.items()"""
+        """Iterate over table entries as key:value tuples, like dict.items()."""
         return iter(sorted({ k: self[k] for k in self.__entries__ }.items(), key=lambda v: int(v[1])))
 
     def __contains__(self, symbol):
-        """Test symbol name membership in table"""
+        """Test symbol name membership in table."""
         return symbol in self.__entries__
 
     def __repr__(self):
-        """Return human-readable Symtbl"""
+        """Return human-readable Symtbl."""
         FMT = "\n{:<20} {:<20}"
         s = f"{len(self)} symbols @ {hex(self)}"
         if len(self) > 0:

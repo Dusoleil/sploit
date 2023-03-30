@@ -1,5 +1,6 @@
 from argparse import ArgumentParser, REMAINDER
 import gc
+from os.path import isdir
 import tempfile
 import traceback
 
@@ -20,24 +21,26 @@ def print_banner(color, line1=__version__, line2='', line3=''):
 def main():
     parser = ArgumentParser(description='Execute Sploit script against target')
     parser.add_argument('script', help='Exploit script to run')
-    parser.add_argument('target', nargs=REMAINDER, help='Target program to exploit')
+    parser.add_argument('target', nargs=REMAINDER, help='Target cmdline or pipes directory')
     args = parser.parse_args()
 
-    if(len(args.target)>0):
-        target(args.script, args.target)
+    if len(args.target) == 0:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pipe(args.script, tmpdir)
+    elif len(args.target) == 1 and isdir(args.target[0]):
+        pipe(args.script, args.target[0])
     else:
-        pipe(args.script)
+        target(args.script, args.target)
 
-def pipe(script):
+def pipe(script, tmpdir):
     print_banner(ERROR, line3='Pipe Mode')
-    with tempfile.TemporaryDirectory() as tmpdir:
-        while(True):
-            try:
-                p = Pipes(tmpdir)
-            except KeyboardInterrupt:
-                break
-            runscript(script, Comm(p))
-            del p
+    while True:
+        try:
+            p = Pipes(tmpdir)
+        except KeyboardInterrupt:
+            break
+        runscript(script, Comm(p))
+        del p
 
 def target(script, target):
     print_banner(STATUS, line3='Subprocess Mode')

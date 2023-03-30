@@ -35,6 +35,14 @@ and against any target source regardless of how it exposes its stdio.
 $ sploit exploit.py
 ```
 
+The pipe FIFOs are normally located in a temporary directory.  However, if a
+directory name is given, sploit will use that location instead.  A particularly
+useful way to use this is to store the pipes in the current directory for working
+with Docker.
+```
+$ sploit exploit.py .
+```
+
 When running in Pipes mode, sploit will wait for something to connect on the
 FIFOs before actually executing the exploit script.  Once it has finished, it
 will go back to waiting and run the script again the next time it connects.

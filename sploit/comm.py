@@ -39,10 +39,10 @@ class Comm:
 
     def readline(self):
         data = self.back.stdin.readline()
-        if data.endswith(b'\n'):
-            data = data[:-1]
         if(data == b''):
             raise BrokenPipeError('Tried to read on broken pipe')
+        if data.endswith(b'\n'):
+            data = data[:-1]
         if self.logonread : ilog(data, file=sys.stdout, color=NORMAL)
         self.last = data
         return data
